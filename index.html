@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSA - Panel de Control Comercial 2026</title>
-    <!-- Tipografía Ejecutiva Moderna -->
+    <title>MAMUSA - Analítico Comercial 2026</title>
+    <!-- Tipografía Ejecutiva y Librería Gráfica de Alto Rendimiento -->
     <link href="https://googleapis.com" rel="stylesheet">
+    <script src="https://jsdelivr.net"></script>
     <style>
         :root {
-            --bg-principal: #0F172A; /* Fondo Dark Mode */
-            --bg-card: rgba(30, 41, 59, 0.7); /* Glassmorphism */
+            --bg-principal: #0F172A; 
+            --bg-card: rgba(30, 41, 59, 0.7); 
             --borde-card: rgba(255, 255, 255, 0.08);
             --azul-electrico: #0052FF;
             --verde-menta: #2ECC71;
@@ -18,26 +19,15 @@
             --texto-secundario: #94A3B8;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-principal);
-            color: var(--texto-principal);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; padding: 15px; }
 
         header {
             background: linear-gradient(135deg, #1E293B, #0F172A);
             border: 1px solid var(--borde-card);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -48,73 +38,34 @@
         header h1 span { color: var(--azul-electrico); }
 
         .status-badge {
-            background: rgba(46, 204, 113, 0.15);
-            border: 1px solid var(--verde-menta);
-            color: var(--verde-menta);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            background: rgba(46, 204, 113, 0.15); border: 1px solid var(--verde-menta);
+            color: var(--verde-menta); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
         }
 
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 20px;
-        }
+        .dashboard-container { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
 
+        /* PANEL IZQUIERDO DE FILTROS REESTRUCTURADO */
         .sidebar {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--borde-card);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: fit-content;
+            background: var(--bg-card); backdrop-filter: blur(10px);
+            border: 1px solid var(--borde-card); border-radius: 12px;
+            padding: 20px; display: flex; flex-direction: column; gap: 18px; height: fit-content;
         }
 
-        .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--texto-secundario);
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 11px; text-transform: uppercase; color: var(--texto-secundario); font-weight: 700; letter-spacing: 0.5px; }
         .filter-select {
-            background: #1E293B;
-            border: 1px solid var(--borde-card);
-            color: var(--texto-principal);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            outline: none;
-            cursor: pointer;
-            width: 100%;
+            background: #1E293B; border: 1px solid var(--borde-card); color: var(--texto-principal);
+            padding: 10px; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; width: 100%;
         }
 
         .main-content { display: flex; flex-direction: column; gap: 20px; }
-
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .kpi-card {
-            background: var(--bg-card);
-            border: 1px solid var(--borde-card);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .kpi-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-        }
+    </style>
+        <style>
+        /* PANEL SUPERIOR DE TARJETAS KPI ADAPTABLE */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; position: relative; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        
         .kpi-card.blue::before { background-color: var(--azul-electrico); }
         .kpi-card.green::before { background-color: var(--verde-menta); }
         .kpi-card.coral::before { background-color: var(--coral-suave); }
@@ -123,118 +74,165 @@
         .kpi-value { font-size: 26px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
         .kpi-subtext { font-size: 12px; color: var(--texto-secundario); }
 
-        .data-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 20px;
-        }
+        /* DISEÑO DE DESGLOSE INTERNO EXCLUSIVO PARA TARJETA 3 */
+        .kpi-desglose-container { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
+        .kpi-split-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .kpi-split-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .split-label { font-size: 13px; font-weight: 600; color: #E2E8F0; }
+        .split-val-box { text-align: right; }
+        .split-monto { font-size: 16px; font-weight: 700; }
+        .split-monto.fact { color: var(--verde-menta); }
+        .split-monto.pres { color: #E2E8F0; }
+        .split-und { font-size: 11px; color: var(--texto-secundario); }
 
-        .table-container {
-            background: var(--bg-card);
-            border: 1px solid var(--borde-card);
-            border-radius: 12px;
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .table-title {
-            font-size: 14px; font-weight: 600; margin-bottom: 15px;
-            border-left: 3px solid var(--azul-electrico); padding-left: 8px;
-        }
+        /* SECCIONES GRÁFICAS Y TABLAS */
+        .analytics-row { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .chart-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 280px; }
+        .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        
+        .table-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; max-height: 380px; overflow-y: auto; }
+        .table-title { font-size: 13px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { color: var(--texto-secundario); padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--borde-card); }
-        td { padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); color: #E2E8F0; }
+        th { color: var(--texto-secundario); padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--borde-card); font-weight: 600; }
+        td { padding: 10px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); color: #E2E8F0; }
         tr:hover td { background: rgba(255, 255, 255, 0.02); }
         .monto-num { text-align: right; font-variant-numeric: tabular-nums; }
+        .badge-cat { background: rgba(0, 82, 255, 0.15); color: #60A5FA; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+        /* 📱 AJUSTES CRÍTICOS PARA MÓVIL (COMPLETA RESPONSIVIDAD) */
+        @media (max-width: 768px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 10px; text-align: center; }
+            .kpi-row { grid-template-columns: 1fr; }
+            .data-section { grid-template-columns: 1fr; }
+        }
     </style>
+
 </head>
 <body>
 
     <header>
-        <h1>MAMUSA <span>• Business Intelligence Panel</span></h1>
+        <h1 id="titulo-dashboard">Estadística de Ventas <span>• Cargando...</span></h1>
         <div class="status-badge" id="status-conexion">● Conectando a la nube...</div>
     </header>
 
     <div class="dashboard-container">
-        <!-- BARRA LATERAL DE FILTROS (SEGMENTADORES WEB) -->
+        <!-- [PANEL IZQUIERDO] FILTROS EN ORDEN ESTRICTO SOLICITADO -->
         <aside class="sidebar">
             <div class="filter-group">
-                <label>Filtrar Vendedor</label>
-                <select class="filter-select" id="filtro-vendedor" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Vendedores --</option>
+                <label>Empresas</label>
+                <select class="filter-select" id="filtro-cia" onchange="procesarYFiltrarDashboard()">
+                    <option value="TODOS">-- Todas las Compañías --</option>
                 </select>
             </div>
 
             <div class="filter-group">
-                <label>Mes del Ejercicio</label>
+                <label>Grupo de Clientes</label>
+                <select class="filter-select" id="filtro-grupo" onchange="procesarYFiltrarDashboard()">
+                    <option value="TODOS">-- Todos los Grupos --</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Mes Ejercicio</label>
                 <select class="filter-select" id="filtro-mes" onchange="procesarYFiltrarDashboard()">
                     <option value="TODOS">-- Todos los Meses --</option>
                 </select>
             </div>
 
             <div class="filter-group">
-                <label>Origen de Datos</label>
+                <label>Tipo de Documento</label>
                 <select class="filter-select" id="filtro-origen" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Orígenes --</option>
+                    <option value="TODOS">-- Todos los Documentos --</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Vendedores</label>
+                <select class="filter-select" id="filtro-vendedor" onchange="procesarYFiltrarDashboard()">
+                    <option value="TODOS">-- Todos los Vendedores --</option>
                 </select>
             </div>
         </aside>
 
-        <!-- PANEL CENTRAL DE VISUALIZACIÓN -->
+        <!-- PANEL CENTRAL DE CONTENIDO -->
         <main class="main-content">
+            <!-- [PANEL SUPERIOR - TARJETAS KPI] -->
             <div class="kpi-row">
+                <!-- Tarjeta 1: Resumen General Histórico Fijo -->
                 <div class="kpi-card blue">
-                    <div class="kpi-title">Resumen General Neto (YTD)</div>
-                    <div class="kpi-value" id="kpi-neto">$0</div>
-                    <div class="kpi-subtext" id="kpi-volumen">Volumen Total: 0 Und</div>
+                    <div class="kpi-title">Resumen Ventas del Ejercicio</div>
+                    <div class="kpi-value" id="kpi-neto-ejercicio">$0</div>
+                    <div class="kpi-subtext" id="kpi-volumen-ejercicio">Volumen Ejercicio: 0 Jgos</div>
                 </div>
+
+                <!-- Tarjeta 2: Resumen del Mes Dinámico Afectado por Filtros -->
                 <div class="kpi-card green">
-                    <div class="kpi-title">Conciliación Sislog vs OfiPro</div>
-                    <div class="kpi-value" id="kpi-sislog">$0</div>
-                    <div class="kpi-subtext" id="kpi-ofipro">Carga OfiPro: $0</div>
+                    <div class="kpi-title">Resumen Ventas del Mes</div>
+                    <div class="kpi-value" id="kpi-neto-mes">$0</div>
+                    <div class="kpi-subtext" id="kpi-volumen-mes">Total Juegos: 0</div>
                 </div>
+
+                <!-- Tarjeta 3: Desglose Paralelo Compuesto (Facturación vs Presupuesto) -->
                 <div class="kpi-card coral">
-                    <div class="kpi-title">Línea Líder de Facturación</div>
-                    <div class="kpi-value" id="kpi-linea-top">N/A</div>
-                    <div class="kpi-subtext" id="kpi-linea-monto">Participación: $0</div>
+                    <div class="kpi-title">Desglose Documentario Operativo</div>
+                    <div class="kpi-desglose-container">
+                        <div class="kpi-split-row">
+                            <span class="split-label">Facturacion:</span>
+                            <div class="split-val-box">
+                                <div class="split-monto fact" id="kpi-monto-fact">$0</div>
+                                <div class="split-und" id="kpi-und-fact">Volumen Total: 0 Jgos</div>
+                            </div>
+                        </div>
+                        <div class="kpi-split-row">
+                            <span class="split-label">Presupuesto:</span>
+                            <div class="split-val-box">
+                                <div class="split-monto pres" id="kpi-monto-pres">$0</div>
+                                <div class="split-und" id="kpi-und-pres">Volumen Total: 0 Jgos</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- FILA GRÁFICA DE TENDENCIAS -->
+            <div class="analytics-row">
+                <div class="chart-container">
+                    <canvas id="graficoTendencias"></canvas>
+                </div>
+            </div>
+
+            <!-- SECCIÓN DE LAS 3 TABLAS DINÁMICAS EN PARALELO -->
             <div class="data-section">
-                <!-- Tabla de Inteligencia de Clientes -->
                 <div class="table-container">
                     <div class="table-title">Inteligencia Comercial de Clientes</div>
                     <table>
                         <thead>
-                            <tr>
-                                <th>Nombre Cliente</th>
-                                <th class="monto-num">Unidades</th>
-                                <th class="monto-num">Neto en $</th>
-                            </tr>
+                            <tr><th>Cliente</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th></tr>
                         </thead>
-                        <tbody id="tabla-clientes-body">
-                            <tr><td colspan="3">Cargando registros...</td></tr>
-                        </tbody>
+                        <tbody id="tabla-clientes-body"></tbody>
                     </table>
                 </div>
 
-                <!-- Tabla de Análisis de Líneas -->
                 <div class="table-container">
                     <div class="table-title">Análisis de Desempeño por Línea</div>
                     <table>
                         <thead>
-                            <tr>
-                                <th>Línea</th>
-                                <th class="monto-num">Unidades</th>
-                                <th class="monto-num">Neto en $</th>
-                                <th class="monto-num">Promedio</th>
-                            </tr>
+                            <tr><th>Línea</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th><th>Prom</th></tr>
                         </thead>
-                        <tbody id="tabla-lineas-body">
-                            <tr><td colspan="4">Cargando registros...</td></tr>
-                        </tbody>
+                        <tbody id="tabla-lineas-body"></tbody>
+                    </table>
+                </div>
+
+                <!-- NUEVA TABLA SOLICITADA: TOP 6 PRODUCTOS MÁS VENDIDOS -->
+                <div class="table-container">
+                    <div class="table-title">Top 6 Productos Más Vendidos</div>
+                    <table>
+                        <thead>
+                            <tr><th>Categoría</th><th>Producto</th><th class="monto-num">Cantidad</th></tr>
+                        </thead>
+                        <tbody id="tabla-top6-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -242,27 +240,19 @@
     </div>
     <!-- 🌟 MOTOR INTERACTIVO JAVASCRIPT DE GOOGLE SHEETS 🌟 -->
     <script>
-        // ⚠️ REEMPLAZA LAS LETRAS LARGAS DE ABAJO POR EL ID REAL DE TU GOOGLE SHEET:
-        
-        //const URL_LECTURA_NUBE = "https://google.com/" + SPREADSHEET_ID + "/gviz/tq?tqx=out:json";
-        //https://docs.google.com/spreadsheets/d/1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU/edit?usp=sharing
+        const SPREADSHEET_ID = "1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU";
+        const URL_LECTURA_NUBE = `https://google.com{SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
 
-        const SPREADSHEET_ID = '1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU';
-        const URL_LECTURA_NUBE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;        
         let base_datos_global = [];
-
+        let miGraficoInstancia = null;
 
         async function conectarYDescargarBaseDatos() {
             try {
-                // Fetch directo a la base de datos distribuida en internet
                 const respuesta = await fetch(URL_LECTURA_NUBE);
                 const textoRaw = await respuesta.text();
-                
-                // Limpieza del wrapper de seguridad de Google para extraer JSON puro
                 const jsonLimpio = JSON.parse(textoRaw.substring(47, textoRaw.length - 2));
                 const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
                 
-                // Conversión de matriz cruda a objetos estructurados en memoria de navegador
                 base_datos_global = jsonLimpio.table.rows.map(r => {
                     let obj = {};
                     r.c.forEach((celda, index) => {
@@ -275,111 +265,155 @@
                 document.getElementById("status-conexion").innerText = "● Sincronizado en Vivo";
                 document.getElementById("status-conexion").style.color = "#2ECC71";
 
+                ejecutarCalculoTituloDinamico();
                 inicializarSegmentadoresFiltros();
                 procesarYFiltrarDashboard();
 
             } catch (error) {
-                console.error("❌ Error de enlace Cloud:", error);
-                document.getElementById("status-conexion").innerText = "⚠️ Error de Sincronización";
-                document.getElementById("status-conexion").style.color = "#FF6B6B";
+                console.error("❌ Error Cloud:", error);
             }
         }
 
-        function inicializarSegmentadoresFiltros() {
-            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
-            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
-            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-
-            const selVendedor = document.getElementById("filtro-vendedor");
-            vendedores.forEach(v => selVendedor.options.add(new Option(v, v)));
-
-            const selMes = document.getElementById("filtro-mes");
-            meses.forEach(m => selMes.options.add(new Option(m, m)));
-
-            const selOrigen = document.getElementById("filtro-origen");
-            origenes.forEach(o => selOrigen.options.add(new Option(o, o)));
+        function ejecutarCalculoTituloDinamico() {
+            let mapaCia = {};
+            base_datos_global.forEach(d => {
+                if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1;
+            });
+            let compañiaMasFrecuente = "MAMUSA";
+            let maxConteo = 0;
+            Object.keys(mapaCia).forEach(c => {
+                if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; }
+            });
+            document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
         }
 
+        function inicializarSegmentadoresFiltros() {
+            const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
+            const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
+            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
+            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
+            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
+
+            const sCia = document.getElementById("filtro-cia"); cias.forEach(c => sCia.options.add(new Option(c, c)));
+            const sGrupo = document.getElementById("filtro-grupo"); grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
+            const sMes = document.getElementById("filtro-mes"); meses.forEach(m => sMes.options.add(new Option(m, m)));
+            const sOrig = document.getElementById("filtro-origen"); origenes.forEach(o => sOrig.options.add(new Option(o, o)));
+            const sVend = document.getElementById("filtro-vendedor"); vendedores.forEach(v => sVend.options.add(new Option(v, v)));
+        }
         function procesarYFiltrarDashboard() {
-            const v_sel = document.getElementById("filtro-vendedor").value;
+            const c_sel = document.getElementById("filtro-cia").value;
+            const g_sel = document.getElementById("filtro-grupo").value;
             const m_sel = document.getElementById("filtro-mes").value;
             const o_sel = document.getElementById("filtro-origen").value;
+            const v_sel = document.getElementById("filtro-vendedor").value;
 
-            // Filtro matricial ultra-rápido en tiempo real al hacer clic
+            let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
+            base_datos_global.forEach(d => {
+                v_neto_ejercicio += parseFloat(d.Ingreso) || 0;
+                v_vol_ejercicio += parseFloat(d.Cantidad) || 0;
+            });
+            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
+
             let data_filtrada = base_datos_global.filter(d => {
-                return (v_sel === "TODOS" || d.Vendedor === v_sel) &&
+                return (c_sel === "TODOS" || d.CIA === c_sel) &&
+                       (g_sel === "TODOS" || d.Grupo_Cliente === g_sel) &&
                        (m_sel === "TODOS" || d.Mes === m_sel) &&
-                       (o_sel === "TODOS" || d.origen === o_sel);
+                       (o_sel === "TODOS" || d.origen === o_sel) &&
+                       (v_sel === "TODOS" || d.Vendedor === v_sel);
             });
 
-            let neto_total = 0; let volumen_total = 0;
-            let total_sislog = 0; let total_ofipro = 0;
-            let resumen_lineas = {}; let resumen_clientes = {};
+            let v_neto_mes = 0; let v_vol_mes = 0;
+            let fact_monto = 0; let fact_und = 0;
+            let pres_monto = 0; let pres_und = 0;
+            let resumen_clientes = {}; let resumen_lineas = {};
+            let ranking_productos = {}; let tendencias_mensuales = {};
 
             data_filtrada.forEach(d => {
                 let qty = parseFloat(d.Cantidad) || 0;
                 let inc = parseFloat(d.Ingreso) || 0;
+                let origStr = String(d.origen || "").toUpperCase();
 
-                neto_total += inc;
-                volumen_total += qty;
+                v_neto_mes += inc; v_vol_mes += qty;
 
-                if (String(d.origen).toUpperCase().includes("FACTURACION") || String(d.origen).toUpperCase().includes("SISLOG")) total_sislog += inc;
-                if (String(d.origen).toUpperCase().includes("PRESUPUETO") || String(d.origen).toUpperCase().includes("OFIPRO")) total_ofipro += inc;
+                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { fact_monto += inc; fact_und += qty; }
+                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { pres_monto += inc; pres_und += qty; }
+
+                let mesClave = d.Mes || "S/M";
+                tendencias_mensuales[mesClave] = (tendencias_mensuales[mesClave] || 0) + inc;
+
+                let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
+                if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
+                resumen_clientes[c_name].qty += qty; resumen_clientes[c_name].inc += inc;
 
                 if (d.Categoria) {
-                    if (!resumen_lineas[d.Categoria]) resumen_lineas[d.Categoria] = { qty: 0, inc: 0 };
-                    resumen_lineas[d.Categoria].qty += qty;
-                    resumen_lineas[d.Categoria].inc += inc;
-                }
+                    let catNorm = String(d.Categoria).toUpperCase().trim();
+                    if (!resumen_lineas[catNorm]) resumen_lineas[catNorm] = { qty: 0, inc: 0 };
+                    resumen_lineas[catNorm].qty += qty; resumen_lineas[catNorm].inc += inc;
 
-                if (d["Nombre Cliente"] || d.Nombre_Cliente) {
-                    let c_name = d["Nombre Cliente"] || d.Nombre_Cliente;
-                    if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
-                    resumen_clientes[c_name].qty += qty;
-                    resumen_clientes[c_name].inc += inc;
+                    let prodClave = d.Producto || "S/P";
+                    if (!ranking_productos[catNorm]) ranking_productos[catNorm] = {};
+                    ranking_productos[catNorm][prodClave] = (ranking_productos[catNorm][prodClave] || 0) + qty;
                 }
             });
 
-            // Inyectar valores numéricos a las Cards
-            document.getElementById("kpi-neto").innerText = `$${neto_total.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-            document.getElementById("kpi-volumen").innerText = `Volumen Total: ${volumen_total.toLocaleString('es-ES')} Und`;
-            document.getElementById("kpi-sislog").innerText = `$${total_sislog.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-            document.getElementById("kpi-ofipro").innerText = `Carga OfiPro: $${total_ofipro.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
+            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
+            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
 
-            let linea_top = "N/A"; let monto_linea_top = 0;
-            Object.keys(resumen_lineas).forEach(l => {
-                if (resumen_lineas[l].inc > monto_linea_top) {
-                    monto_linea_top = resumen_lineas[l].inc;
-                    linea_top = l;
+            const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
+            Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
+                tBodyC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`;
+            });
+
+            const tBodyL = document.getElementById("tabla-lineas-body"); tBodyL.innerHTML = "";
+            Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc).forEach(l => {
+                let prom = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
+                tBodyL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${prom.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+            });
+            const tBodyTop6 = document.getElementById("tabla-top6-body"); tBodyTop6.innerHTML = "";
+            const categoriasFijas = ["PASTILLAS", "BLOQUES", "BANDAS", "ROLLOS", "LIGA", "REFRIGERANTES"];
+            
+            categoriasFijas.forEach(cat => {
+                let proModelLeader = "S/P"; let maxQtyLeader = 0;
+                if (ranking_productos[cat]) {
+                    Object.keys(ranking_productos[cat]).forEach(p => {
+                        if (ranking_productos[cat][p] > maxQtyLeader) { maxQtyLeader = ranking_productos[cat][p]; proModelLeader = p; }
+                    });
                 }
-            });
-            document.getElementById("kpi-linea-top").innerText = linea_top;
-            document.getElementById("kpi-linea-monto").innerText = `Participación: $${monto_linea_top.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-
-            // Renderizar Inteligencia de Clientes ordenado descendente
-            const tbodyClientes = document.getElementById("tabla-clientes-body");
-            tbodyClientes.innerHTML = "";
-            let clientes_ordenados = Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc);
-            clientes_ordenados.forEach(c => {
-                tbodyClientes.innerHTML += `<tr>
-                    <td>${c}</td>
-                    <td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td>
-                    <td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
-                </tr>`;
+                tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
             });
 
-            // Renderizar Análisis de Líneas
-            const tbodyLineas = document.getElementById("tabla-lineas-body");
-            tbodyLineas.innerHTML = "";
-            let lineas_ordenadas = Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc);
-            lineas_ordenadas.forEach(l => {
-                let promedio = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
-                tbodyLineas.innerHTML += `<tr>
-                    <td><strong>${l}</strong></td>
-                    <td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td>
-                    <td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
-                    <td class="monto-num">${promedio.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                </tr>`;
+            let mesesEje = Object.keys(tendencias_mensuales).sort();
+            let montosEje = mesesEje.map(m => tendencias_mensuales[m]);
+
+            if (miGraficoInstancia) { miGraficoInstancia.destroy(); }
+            const ctx = document.getElementById('graficoTendencias').getContext('2d');
+            miGraficoInstancia = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: mesesEje,
+                    datasets: [{
+                        label: 'Ingreso Neto por Mes (\$)',
+                        data: montosEje,
+                        backgroundColor: 'rgba(0, 82, 255, 0.4)',
+                        borderColor: '#0052FF',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94A3B8' } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+                    }
+                }
             });
         }
 
@@ -387,3 +421,4 @@
     </script>
 </body>
 </html>
+
