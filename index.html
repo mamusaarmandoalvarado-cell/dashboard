@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSA - Analítico Comercial 2026</title>
-    <!-- Tipografía Ejecutiva y Librería Gráfica de Alto Rendimiento -->
+    <title>MAMUSA - Analítico Comercial Premium 2026</title>
+    <!-- Tipografía Ejecutiva y Soporte Gráfico Local -->
     <link href="https://googleapis.com" rel="stylesheet">
-    <!-- Vinculación del archivo de configuración aislado -->
-    <script src="config.js"></script>
     <script src="chart.js"></script>
     <style>
         :root {
@@ -25,15 +23,9 @@
         body { background-color: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; padding: 15px; }
 
         header {
-            background: linear-gradient(135deg, #1E293B, #0F172A);
-            border: 1px solid var(--borde-card);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid var(--borde-card);
+            border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex;
+            justify-content: space-between; align-items: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
 
         header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
@@ -46,11 +38,9 @@
 
         .dashboard-container { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
 
-        /* PANEL IZQUIERDO DE FILTROS REESTRUCTURADO */
         .sidebar {
-            background: var(--bg-card); backdrop-filter: blur(10px);
-            border: 1px solid var(--borde-card); border-radius: 12px;
-            padding: 20px; display: flex; flex-direction: column; gap: 18px; height: fit-content;
+            background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--borde-card);
+            border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 18px; height: fit-content;
         }
 
         .filter-group { display: flex; flex-direction: column; gap: 6px; }
@@ -61,7 +51,6 @@
         }
 
         .main-content { display: flex; flex-direction: column; gap: 20px; }
-        /* PANEL SUPERIOR DE TARJETAS KPI ADAPTABLE */
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .kpi-card { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; position: relative; }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
@@ -74,7 +63,6 @@
         .kpi-value { font-size: 26px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
         .kpi-subtext { font-size: 12px; color: var(--texto-secundario); }
 
-        /* DISEÑO DE DESGLOSE INTERNO EXCLUSIVO PARA TARJETA 3 */
         .kpi-desglose-container { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
         .kpi-split-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
         .kpi-split-row:last-child { border-bottom: none; padding-bottom: 0; }
@@ -85,11 +73,13 @@
         .split-monto.pres { color: #E2E8F0; }
         .split-und { font-size: 11px; color: var(--texto-secundario); }
 
-        /* SECCIONES GRÁFICAS Y TABLAS */
-        .analytics-row { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .chart-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 280px; }
+        /* SECCIÓN DE REJILLA DE GRÁFICOS MULTI-PANEL */
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
+        .chart-card-box { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
+        .chart-header-title { font-size: 13px; font-weight: 700; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
+        .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 260px; }
+
         .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-        
         .table-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; max-height: 380px; overflow-y: auto; }
         .table-title { font-size: 13px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
 
@@ -100,15 +90,15 @@
         .monto-num { text-align: right; font-variant-numeric: tabular-nums; }
         .badge-cat { background: rgba(0, 82, 255, 0.15); color: #60A5FA; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
 
-        /* 📱 AJUSTES CRÍTICOS PARA MÓVIL (COMPLETA RESPONSIVIDAD) */
         @media (max-width: 768px) {
             .dashboard-container { grid-template-columns: 1fr; }
             header { flex-direction: column; gap: 10px; text-align: center; }
             .kpi-row { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
             .data-section { grid-template-columns: 1fr; }
         }
-    </style>
 
+    </style>
 </head>
 <body>
 
@@ -118,7 +108,7 @@
     </header>
 
     <div class="dashboard-container">
-        <!-- [PANEL IZQUIERDO] FILTROS EN ORDEN ESTRICTO SOLICITADO -->
+        <!-- [PANEL IZQUIERDO] FILTROS EN ORDEN ESTRICTO REQUERIDO -->
         <aside class="sidebar">
             <div class="filter-group">
                 <label>Empresas</label>
@@ -158,23 +148,19 @@
 
         <!-- PANEL CENTRAL DE CONTENIDO -->
         <main class="main-content">
-            <!-- [PANEL SUPERIOR - TARJETAS KPI] -->
             <div class="kpi-row">
-                <!-- Tarjeta 1: Resumen General Histórico Fijo -->
                 <div class="kpi-card blue">
                     <div class="kpi-title">Resumen Ventas del Ejercicio</div>
                     <div class="kpi-value" id="kpi-neto-ejercicio">$0</div>
                     <div class="kpi-subtext" id="kpi-volumen-ejercicio">Volumen Ejercicio: 0 Jgos</div>
                 </div>
 
-                <!-- Tarjeta 2: Resumen del Mes Dinámico Afectado por Filtros -->
                 <div class="kpi-card green">
                     <div class="kpi-title">Resumen Ventas del Mes</div>
                     <div class="kpi-value" id="kpi-neto-mes">$0</div>
                     <div class="kpi-subtext" id="kpi-volumen-mes">Total Juegos: 0</div>
                 </div>
 
-                <!-- Tarjeta 3: Desglose Paralelo Compuesto (Facturación vs Presupuesto) -->
                 <div class="kpi-card coral">
                     <div class="kpi-title">Desglose Documentario Operativo</div>
                     <div class="kpi-desglose-container">
@@ -196,14 +182,18 @@
                 </div>
             </div>
 
-            <!-- FILA GRÁFICA DE TENDENCIAS -->
-            <div class="analytics-row">
-                <div class="chart-container">
-                    <canvas id="graficoTendencias"></canvas>
+            <!-- 📊 REJILLA PARA LOS DOS GRÁFICOS CONSTANTES DE 12 MESES HÍBRIDOS (IMAGEN 2) 📊 -->
+            <div class="charts-grid">
+                <div class="chart-card-box">
+                    <div class="chart-header-title">1. Resumen Comercial General (12 Meses Constante)</div>
+                    <div class="chart-wrapper"><canvas id="graficoGeneralHistorico"></canvas></div>
+                </div>
+                <div class="chart-card-box">
+                    <div class="chart-header-title" id="titulo-grafico-vendedor">2. Desempeño Compuesto por Vendedor (FA + PR)</div>
+                    <div class="chart-wrapper"><canvas id="graficoVendedorHistorico"></canvas></div>
                 </div>
             </div>
 
-            <!-- SECCIÓN DE LAS 3 TABLAS DINÁMICAS EN PARALELO -->
             <div class="data-section">
                 <div class="table-container">
                     <div class="table-title">Inteligencia Comercial de Clientes</div>
@@ -225,7 +215,6 @@
                     </table>
                 </div>
 
-                <!-- NUEVA TABLA SOLICITADA: TOP 6 PRODUCTOS MÁS VENDIDOS -->
                 <div class="table-container">
                     <div class="table-title">Top 6 Productos Más Vendidos</div>
                     <table>
@@ -238,11 +227,16 @@
             </div>
         </main>
     </div>
-    <!-- 🌟 MOTOR INTERACTIVO JAVASCRIPT DE GOOGLE SHEETS 🌟 -->
+    <!-- Vinculación de variables configuradas -->
+    <script src="config.js"></script>
     <script>
-
         let base_datos_global = [];
-        let miGraficoInstancia = null;
+        let instanciaGraficoGeneral = null;
+        let instanciaGraficoVendedor = null;
+
+        // Mapeo cronológico solicitado para transformar '26-01' en 'Ene', '26-02' en 'Feb', etc.
+        const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
 
         async function conectarYDescargarBaseDatos() {
             try {
@@ -268,7 +262,7 @@
                 procesarYFiltrarDashboard();
 
             } catch (error) {
-                console.error("❌ Error Cloud:", error);
+                console.error("❌ Error de carga analítica:", error);
             }
         }
 
@@ -305,12 +299,14 @@
             const o_sel = document.getElementById("filtro-origen").value;
             const v_sel = document.getElementById("filtro-vendedor").value;
 
+            document.getElementById("titulo-grafico-vendedor").innerText = `2. Análisis por Asesor: ${v_sel === "TODOS" ? "Todos los Vendedores" : v_sel} (FA + PR)`;
+
             let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
             base_datos_global.forEach(d => {
                 v_neto_ejercicio += parseFloat(d.Ingreso) || 0;
                 v_vol_ejercicio += parseFloat(d.Cantidad) || 0;
             });
-            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
 
             let data_filtrada = base_datos_global.filter(d => {
@@ -324,21 +320,27 @@
             let v_neto_mes = 0; let v_vol_mes = 0;
             let fact_monto = 0; let fact_und = 0;
             let pres_monto = 0; let pres_und = 0;
-            let resumen_clientes = {}; let resumen_lineas = {};
-            let ranking_productos = {}; let tendencias_mensuales = {};
+            let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {};
+
+            let general_FA = Array(12).fill(0); let general_PR = Array(12).fill(0);
+            let vendedor_FA = Array(12).fill(0); let vendedor_PR = Array(12).fill(0);
 
             data_filtrada.forEach(d => {
                 let qty = parseFloat(d.Cantidad) || 0;
                 let inc = parseFloat(d.Ingreso) || 0;
                 let origStr = String(d.origen || "").toUpperCase();
+                let mesIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
 
                 v_neto_mes += inc; v_vol_mes += qty;
 
-                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { fact_monto += inc; fact_und += qty; }
-                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { pres_monto += inc; pres_und += qty; }
-
-                let mesClave = d.Mes || "S/M";
-                tendencias_mensuales[mesClave] = (tendencias_mensuales[mesClave] || 0) + inc;
+                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { 
+                    fact_monto += inc; fact_und += qty; 
+                    if(mesIndex !== -1) general_FA[mesIndex] += inc;
+                }
+                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { 
+                    pres_monto += inc; pres_und += qty; 
+                    if(mesIndex !== -1) general_PR[mesIndex] += inc;
+                }
 
                 let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
                 if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
@@ -355,11 +357,23 @@
                 }
             });
 
-            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            base_datos_global.forEach(d => {
+                if (v_sel !== "TODOS" && d.Vendedor !== v_sel) return;
+                let inc = parseFloat(d.Ingreso) || 0;
+                let origStr = String(d.origen || "").toUpperCase();
+                let mesIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
+
+                if (mesIndex !== -1) {
+                    if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) vendedor_FA[mesIndex] += inc;
+                    if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) vendedor_PR[mesIndex] += inc;
+                }
+            });
+
+            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
-            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
-            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
 
             const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
@@ -372,9 +386,9 @@
                 let prom = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
                 tBodyL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${prom.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
             });
+
             const tBodyTop6 = document.getElementById("tabla-top6-body"); tBodyTop6.innerHTML = "";
             const categoriasFijas = ["PASTILLAS", "BLOQUES", "BANDAS", "ROLLOS", "LIGA", "REFRIGERANTES"];
-            
             categoriasFijas.forEach(cat => {
                 let proModelLeader = "S/P"; let maxQtyLeader = 0;
                 if (ranking_productos[cat]) {
@@ -385,31 +399,42 @@
                 tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
             });
 
-            let mesesEje = Object.keys(tendencias_mensuales).sort();
-            let montosEje = mesesEje.map(m => tendencias_mensuales[m]);
-
-            if (miGraficoInstancia) { miGraficoInstancia.destroy(); }
-            const ctx = document.getElementById('graficoTendencias').getContext('2d');
-            miGraficoInstancia = new Chart(ctx, {
+            if (instanciaGraficoGeneral) { instanciaGraficoGeneral.destroy(); }
+            instanciaGraficoGeneral = new Chart(document.getElementById('graficoGeneralHistorico').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: mesesEje,
-                    datasets: [{
-                        label: 'Ingreso Neto por Mes (\$)',
-                        data: montosEje,
-                        backgroundColor: 'rgba(0, 82, 255, 0.4)',
-                        borderColor: '#0052FF',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
+                    labels: LISTA_MESES_CONSTANTE,
+                    datasets: [
+                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', stack: 'Stack0' },
+                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', stack: 'Stack0' }
+                    ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { labels: { color: '#94A3B8' } } },
                     scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+                        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
+                        x: { stacked: true, grid: { display: false }, ticks: { color: '#94A3B8' } }
+                    }
+                }
+            });
+
+            if (instanciaGraficoVendedor) { instanciaGraficoVendedor.destroy(); }
+            instanciaGraficoVendedor = new Chart(document.getElementById('graficoVendedorHistorico').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: LISTA_MESES_CONSTANTE,
+                    datasets: [
+                        { label: 'Facturación (FA)', data: vendedor_FA, backgroundColor: '#0052FF', stack: 'Stack1' },
+                        { label: 'Presupuesto (PR)', data: vendedor_PR, backgroundColor: 'rgba(255, 107, 107, 0.4)', stack: 'Stack1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94A3B8' } } },
+                    scales: {
+                        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
+                        x: { stacked: true, grid: { display: false }, ticks: { color: '#94A3B8' } }
                     }
                 }
             });
@@ -419,4 +444,3 @@
     </script>
 </body>
 </html>
-
