@@ -7,6 +7,8 @@
     <!-- Tipografía Ejecutiva y Librería Gráfica de Alto Rendimiento -->
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
+    <!-- Vinculación del archivo de configuración aislado -->
+    <script src="config.js"></script>
     <style>
         :root {
             --bg-principal: #0F172A; 
@@ -59,8 +61,6 @@
         }
 
         .main-content { display: flex; flex-direction: column; gap: 20px; }
-    </style>
-        <style>
         /* PANEL SUPERIOR DE TARJETAS KPI ADAPTABLE */
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .kpi-card { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; position: relative; }
@@ -240,10 +240,6 @@
     </div>
     <!-- 🌟 MOTOR INTERACTIVO JAVASCRIPT DE GOOGLE SHEETS 🌟 -->
     <script>
-        const SPREADSHEET_ID = '1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU';
-        const URL_LECTURA_NUBE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;   
-
-
 
         let base_datos_global = [];
         let miGraficoInstancia = null;
