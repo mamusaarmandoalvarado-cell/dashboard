@@ -216,7 +216,7 @@
                 </div>
             </div>
 
-            <!-- CONTENEDOR EXCLUSIVO SUPERIOR - GRÁFICO 1 
+            <!-- CONTENEDOR EXCLUSIVO SUPERIOR - GRÁFICO 1 -->
             <div class="chart-row-top">
                 <div class="chart-card-box">
                     <div class="chart-header-title">1. Resumen Comercial General (Ventas Netas por Mes)</div>
@@ -224,7 +224,7 @@
                 </div>
             </div>
 
-             SEGUNDO CONTENEDOR EN REJILLA - GRÁFICOS 2 Y 3 
+            <!-- SEGUNDO CONTENEDOR EN REJILLA - GRÁFICOS 2 Y 3 -->
             <div class="charts-grid-bottom">
                 <div class="chart-card-box">
                     <div class="chart-header-title">2. Comparativo Mensual de Desempeño (FA vs PR)</div>
@@ -235,37 +235,6 @@
                     <div class="chart-wrapper"><canvas id="graficoVendedorDinamico"></canvas></div>
                 </div>
             </div>
-        -->
-<!-- Fila Superior: Gráficos 1 y 2 -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <!-- Gráfico 1: Resumen Comercial General -->
-    <div class="glass-card p-6 rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
-        <h3 class="text-white text-sm font-semibold tracking-wider uppercase mb-4 text-slate-400">Resumen Comercial General - Ingresos Netos por Mes</h3>
-        <div class="relative h-80">
-            <canvas id="chartResumenComercial"></canvas>
-        </div>
-    </div>
-
-    <!-- Gráfico 2: Comparativo Mensual FA vs PR -->
-    <div class="glass-card p-6 rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
-        <h3 class="text-white text-sm font-semibold tracking-wider uppercase mb-4 text-slate-400">Comparativo Mensual: Facturación (FA) vs Presupuesto (PR)</h3>
-        <div class="relative h-80">
-            <canvas id="chartComparativoMensual"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Fila Inferior: Gráfico 3 Independiente -->
-<div class="w-full gap-6 mb-6">
-    <div class="glass-card p-6 rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
-        <h3 class="text-white text-sm font-semibold tracking-wider uppercase mb-4 text-slate-400">Análisis de Ventas por Vendedor y Categoría</h3>
-        <div class="relative h-96">
-            <canvas id="chartVendedorCategoria"></canvas>
-        </div>
-    </div>
-</div>
-
-
 
             <div class="data-section">
                 <div class="table-container">
@@ -302,200 +271,257 @@
     </div>
     <!-- Vinculación del archivo aislado de ajustes -->
     <script src="config.js"></script>
+    <!-- Vinculación del archivo de configuración aislado -->
+    <script src="config.js"></script>
     <script>
-// --- CONSTANTES DE CONFIGURACIÓN ---
-const MESES_ANIO = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-const CATEGORIAS_MAMUSA = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
-const PALETA_COLORES = [
-    'rgba(59, 130, 246, 0.85)',  // Azul Eléctrico
-    'rgba(244, 63, 94, 0.85)',   // Coral
-    'rgba(168, 85, 247, 0.85)',  // Púrpura
-    'rgba(52, 211, 153, 0.85)',  // Verde Menta
-    'rgba(251, 191, 36, 0.85)',  // Amarillo
-    'rgba(45, 212, 191, 0.85)'   // Turquesa (Backup)
-];
+        let base_datos_global = [];
+        let instGrafico1 = null;
+        let instGrafico2 = null;
+        let instGrafico3 = null;
 
-// Instancias globales de los gráficos para control de destrucción/redibujado
-let chart1 = null, chart2 = null, chart3 = null;
+        const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
 
-/**
- * Gráfico 1: Resumen Comercial General (Barras Simples Azul Minimalista)
- * Reactivo a filtros laterales.
- */
-function renderChartResumenComercial(dataFiltrada) {
-    const ctx = document.getElementById('chartResumenComercial').getContext('2d');
-    if (chart1) chart1.destroy();
+        async function conectarYDescargarBaseDatos() {
+            try {
+                const respuesta = await fetch(URL_LECTURA_NUBE);
+                const textoRaw = await respuesta.text();
+                const jsonLimpio = JSON.parse(textoRaw.substring(47, textoRaw.length - 2));
+                const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
+                
+                base_datos_global = jsonLimpio.table.rows.map(r => {
+                    let obj = {};
+                    r.c.forEach((celda, index) => {
+                        let colName = columnas[index] || `Col_${index}`;
+                        obj[colName] = celda ? celda.v : "";
+                    });
+                    return obj;
+                });
 
-    // Agrupar ingresos por mes basándose en la data filtrada activa
-    const ingresosPorMes = Array(12).fill(0);
-    dataFiltrada.forEach(row => {
-        // Asumiendo que row.Mes es un entero de 1 a 12 o se mapea a su índice
-        const mesIdx = parseInt(row.Mes) - 1; 
-        if (mesIdx >= 0 && mesIdx < 12) {
-            ingresosPorMes[mesIdx] += parseFloat(row.Ingreso || 0);
-        }
-    });
+                document.getElementById("status-conexion").innerText = "● Sincronizado en Vivo";
+                document.getElementById("status-conexion").style.color = "#2ECC71";
 
-    chart1 = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: MESES_ANIO,
-            datasets: [{
-                label: 'Ingreso Neto Acumulado',
-                data: ingresosPorMes,
-                backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                borderColor: 'rgba(59, 130, 246, 1)',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                ejecutarCalculoTituloDinamico();
+                inicializarSegmentadoresFiltros();
+                procesarYFiltrarDashboard();
+
+            } catch (error) {
+                console.error("❌ Error de carga analítica:", error);
             }
         }
-    });
-}
 
-/**
- * Gráfico 2: Comparativo Mensual FA vs PR (Inalterable por filtros)
- * Consume estrictamente la DATA HISTÓRICA COMPLETA original.
- */
-function renderChartComparativoMensual(dataHistoricaCompleta) {
-    const ctx = document.getElementById('chartComparativoMensual').getContext('2d');
-    if (chart2) return; // Se renderiza una sola vez al cargar la app, es fijo.
-
-    const facturacionMensual = Array(12).fill(0);
-    const presupuestoMensual = Array(12).fill(0);
-
-    dataHistoricaCompleta.forEach(row => {
-        const mesIdx = parseInt(row.Mes) - 1;
-        if (mesIdx >= 0 && mesIdx < 12) {
-            // Separación de tipos de movimiento según arquitectura Sislog/OfiPro
-            if (row.origen === 'FA' || row.Tipo === 'Factura') {
-                facturacionMensual[mesIdx] += parseFloat(row.Ingreso || 0);
-            } else if (row.origen === 'PR' || row.Tipo === 'Presupuesto') {
-                presupuestoMensual[mesIdx] += parseFloat(row.Ingreso || 0);
-            }
+        function ejecutarCalculoTituloDinamico() {
+            let mapaCia = {};
+            base_datos_global.forEach(d => {
+                if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1;
+            });
+            let compañiaMasFrecuente = "MAMUSA";
+            let maxConteo = 0;
+            Object.keys(mapaCia).forEach(c => {
+                if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; }
+            });
+            document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
         }
-    });
 
-    chart2 = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: MESES_ANIO,
-            datasets: [
-                {
-                    label: 'Facturación (FA)',
-                    data: facturacionMensual,
-                    backgroundColor: 'rgba(52, 211, 153, 0.85)', // Verde Menta
-                    borderRadius: 4
-                },
-                {
-                    label: 'Presupuesto (PR)',
-                    data: presupuestoMensual,
-                    backgroundColor: 'rgba(241, 245, 249, 0.85)', // Gris/Blanco institucional
-                    borderRadius: 4
+        function inicializarSegmentadoresFiltros() {
+            const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
+            const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
+            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
+            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
+            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
+
+            const sCia = document.getElementById("filtro-cia"); cias.forEach(c => sCia.options.add(new Option(c, c)));
+            const sGrupo = document.getElementById("filtro-grupo"); grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
+            const sMes = document.getElementById("filtro-mes"); meses.forEach(m => sMes.options.add(new Option(m, m)));
+            const sOrig = document.getElementById("filtro-origen"); origenes.forEach(o => sOrig.options.add(new Option(o, o)));
+            const sVend = document.getElementById("filtro-vendedor"); vendedores.forEach(v => sVend.options.add(new Option(v, v)));
+        }
+        function procesarYFiltrarDashboard() {
+            const c_sel = document.getElementById("filtro-cia").value;
+            const g_sel = document.getElementById("filtro-grupo").value;
+            const m_sel = document.getElementById("filtro-mes").value;
+            const o_sel = document.getElementById("filtro-origen").value;
+            const v_sel = document.getElementById("filtro-vendedor").value;
+
+            document.getElementById("titulo-grafico-vendedor").innerText = `3. Desempeño por Categoría y Vendedor (Filtros Reactivos)`;
+
+            let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
+            let datos_grafico1 = Array(12).fill(0);
+            
+            // --- GRÁFICO 2 CONSTANTE FIJO: Arreglos inalterables de 12 meses ---
+            let general_FA = Array(12).fill(0); let general_PR = Array(12).fill(0);
+
+            base_datos_global.forEach(d => {
+                let inc = parseFloat(d.Ingreso) || 0;
+                let qty = parseFloat(d.Cantidad) || 0;
+                let mIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
+                let origStr = String(d.origen || "").toUpperCase();
+                
+                v_neto_ejercicio += inc;
+                v_vol_ejercicio += qty;
+                
+                if(mIndex !== -1) {
+                    datos_grafico1[mIndex] += inc;
+                    // Lógica del Gráfico 2: Almacena todo el histórico sin importar los filtros del panel
+                    if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) general_FA[mIndex] += inc;
+                    if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) general_PR[mIndex] += inc;
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#f8fafc' } } },
-            scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            }
-        }
-    });
-}
+            });
+            
+            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
+            document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
 
-/**
- * Gráfico 3: Análisis por Vendedor / Categoría
- * TOTALMENTE REACTIVO. Eje X fijo. Tooltips y etiquetas personalizadas [Vendedor];[Monto].
- */
-function renderChartVendedorCategoria(dataFiltrada) {
-    const ctx = document.getElementById('chartVendedorCategoria').getContext('2d');
-    if (chart3) chart3.destroy();
+            // --- APLICACIÓN DE FILTROS EN TIEMPO REAL PARA EL RESTO DEL TABLERO ---
+            let data_filtrada = base_datos_global.filter(d => {
+                return (c_sel === "TODOS" || d.CIA === c_sel) &&
+                       (g_sel === "TODOS" || d.Grupo_Cliente === g_sel) &&
+                       (m_sel === "TODOS" || d.Mes === m_sel) &&
+                       (o_sel === "TODOS" || d.origen === o_sel) &&
+                       (v_sel === "TODOS" || d.Vendedor === v_sel);
+            });
 
-    // 1. Extraer los vendedores únicos presentes en la selección actual
-    const listaVendedores = [...new Set(dataFiltrada.map(row => row.Vendedor).filter(Boolean))].sort();
+            let v_neto_mes = 0; let v_vol_mes = 0;
+            let fact_monto = 0; let fact_und = 0;
+            let pres_monto = 0; let pres_und = 0;
+            let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {};
+            
+            // --- ESTRUCTURAS EXCLUSIVAS PARA LA MATRIZ DINÁMICA DEL GRÁFICO 3 ---
+            const categoriasFijas = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
+            let setVendedores = new Set();
+            let mapeoDinamicoTop3 = {}; 
 
-    // 2. Construir los datasets cruzando Vendedor con las Categorías Fijas
-    const datasets = listaVendedores.map((vendedor, index) => {
-        const dataMontos = CATEGORIAS_MAMUSA.map(categoria => {
-            // Filtrar data por el vendedor actual y la categoría del eje X
-            return dataFiltrada
-                .filter(row => row.Vendedor === vendedor && row.Categoria === categoria)
-                .reduce((sum, row) => sum + parseFloat(row.Ingreso || 0), 0);
-        });
+            data_filtrada.forEach(d => {
+                let qty = parseFloat(d.Cantidad) || 0;
+                let inc = parseFloat(d.Ingreso) || 0;
+                let origStr = String(d.origen || "").toUpperCase();
+                let catNorm = String(d.Categoria || "").toUpperCase().trim();
+                let vName = String(d.Vendedor || "Sin Asesor").trim();
 
-        const colorBase = PALETA_COLORES[index % PALETA_COLORES.length];
+                v_neto_mes += inc; v_vol_mes += qty;
 
-        return {
-            label: vendedor,
-            data: dataMontos,
-            backgroundColor: colorBase,
-            borderRadius: 4,
-            borderWidth: 1
-        };
-    });
+                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { fact_monto += inc; fact_und += qty; }
+                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { pres_monto += inc; pres_und += qty; }
 
-    chart3 = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: CATEGORIAS_MAMUSA,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { color: '#f8fafc', boxWidth: 12 } },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const vendedor = context.dataset.label;
-                            const monto = context.raw;
-                            const montoFormateado = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'USD' }).format(monto);
-                            // Retorna el formato estricto gerencial: [Nombre Vendedor];[Monto Ingreso]
-                            return `${vendedor}; ${montoFormateado}`;
+                if (vName && catNorm && categoriasFijas.includes(catNorm)) {
+                    setVendedores.add(vName);
+                    if (!mapeoDinamicoTop3[vName]) mapeoDinamicoTop3[vName] = {};
+                    mapeoDinamicoTop3[vName][catNorm] = (mapeoDinamicoTop3[vName][catNorm] || 0) + inc;
+                }
+
+                let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
+                if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
+                resumen_clientes[c_name].qty += qty; resumen_clientes[c_name].inc += inc;
+
+                if (d.Categoria) {
+                    if (!resumen_lineas[catNorm]) resumen_lineas[catNorm] = { qty: 0, inc: 0 };
+                    resumen_lineas[catNorm].qty += qty; resumen_lineas[catNorm].inc += inc;
+
+                    let prodClave = d.Producto || "S/P";
+                    if (!ranking_productos[catNorm]) ranking_productos[catNorm] = {};
+                    ranking_productos[catNorm][prodClave] = (ranking_productos[catNorm][prodClave] || 0) + qty;
+                }
+            });
+
+            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
+            document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
+            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
+            document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
+            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
+            document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
+
+            const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
+            Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
+                tBodyC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`;
+            });
+
+            const tBodyL = document.getElementById("tabla-lineas-body"); tBodyL.innerHTML = "";
+            Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc).forEach(l => {
+                let prom = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
+                tBodyL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${prom.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+            });
+
+            const tBodyTop6 = document.getElementById("tabla-top6-body"); tBodyTop6.innerHTML = "";
+            categoriasFijas.forEach(cat => {
+                let proModelLeader = "S/P"; let maxQtyLeader = 0;
+                if (ranking_productos[cat]) {
+                    Object.keys(ranking_productos[cat]).forEach(p => {
+                        if (ranking_productos[cat][p] > maxQtyLeader) { maxQtyLeader = ranking_productos[cat][p]; proModelLeader = p; }
+                    });
+                }
+                tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
+            });
+
+            if (instGrafico1) { instGrafico1.destroy(); }
+            instGrafico1 = new Chart(document.getElementById('graficoNetoSimple').getContext('2d'), {
+                type: 'bar',
+                data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ label: 'Ingreso Neto por Mes (\$)', data: datos_grafico1, backgroundColor: '#0052FF', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
+            });
+
+            if (instGrafico2) { instGrafico2.destroy(); }
+            instGrafico2 = new Chart(document.getElementById('graficoBarrasParalelas').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: LISTA_MESES_CONSTANTE,
+                    datasets: [
+                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', borderRadius: 4 },
+                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94A3B8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
+            });
+            // 📊 RENDERIZADO DEL GRÁFICO 3 (COMPUESTO MULTI-SERIES POR VENDEDOR REACTIVO - PERFECCIONADO) 📊
+            const paletaColoresThema = ['#0052FF', '#FF6B6B', '#9F7AEA', '#2ECC71', '#F59E0B'];
+            let listaDatasetsVendedores = [];
+            let colorIndex = 0;
+
+            setVendedores.forEach(vendedor => {
+                let dataMontosPorCategoria = categoriasFijas.map(cat => {
+                    return mapeoDinamicoTop3[vendedor] && mapeoDinamicoTop3[vendedor][cat] ? Math.round(mapeoDinamicoTop3[vendedor][cat]) : 0;
+                });
+
+                listaDatasetsVendedores.push({
+                    label: vendedor,
+                    data: dataMontosPorCategoria,
+                    backgroundColor: paletaColoresThema[colorIndex % paletaColoresThema.length],
+                    borderRadius: 4,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.1)'
+                });
+                colorIndex++;
+            });
+
+            if (instGrafico3) { instGrafico3.destroy(); }
+            instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: categoriasFijas, 
+                    datasets: listaDatasetsVendedores 
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let vNameLabel = context.dataset.label;
+                                    let valMontoLabel = context.raw.toLocaleString('es-ES');
+                                    return vNameLabel + "; $" + valMontoLabel;
+                                }
+                            }
                         }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
+                        x: { grid: { display: false }, ticks: { color: '#E2E8F0', font: { weight: 'bold' } } }
                     }
                 }
-            },
-            scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            }
+            });
         }
-    });
-}
 
-/**
- * Función Maestra de actualización del Pipeline del Front-End
- * Se invoca al recibir el JSON de Google Sheets y en cada evento 'change' de los filtros.
- */
-function actualizarDashboard(dataHistorica, esCargaInicial = false) {
-    // 1. Obtener la data filtrada según el estado del panel izquierdo
-    const dataFiltrada = aplicarFiltrosLaterales(dataHistorica);
-
-    // 2. Ejecutar renderizados respetando las dependencias de reactividad
-    renderChartResumenComercial(dataFiltrada);
-    renderChartVendedorCategoria(dataFiltrada);
-    
-    if (esCargaInicial) {
-        renderChartComparativoMensual(dataHistorica); // Fijo, inmune a mutaciones
-    }
-    
-    // Aquí continúan tus funciones existentes para KPIs y tablas dinámicas...
-}
-
-            </script>
+        window.onload = conectarYDescargarBaseDatos;
+    </script>
 </body>
 </html>
