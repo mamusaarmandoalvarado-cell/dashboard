@@ -324,18 +324,47 @@
         }
 
         function inicializarSegmentadoresFiltros() {
+            // 1. Extraemos y ordenamos los catálogos únicos de la base de datos de internet
             const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
             const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
             const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
             const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
             const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
 
+            // 2. Llenamos físicamente las cajas desplegables del panel izquierdo
             const sCia = document.getElementById("filtro-cia"); cias.forEach(c => sCia.options.add(new Option(c, c)));
             const sGrupo = document.getElementById("filtro-grupo"); grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
             const sMes = document.getElementById("filtro-mes"); meses.forEach(m => sMes.options.add(new Option(m, m)));
             const sOrig = document.getElementById("filtro-origen"); origenes.forEach(o => sOrig.options.add(new Option(o, o)));
             const sVend = document.getElementById("filtro-vendedor"); vendedores.forEach(v => sVend.options.add(new Option(v, v)));
+
+            // ==============================================================================
+            // 🌟 ALGORITMO DE PRESELECCIÓN EJECUTIVA PRE-SET (MAMUSA BI 2026)
+            // ==============================================================================
+            
+            // Regla 1: Preseleccionar "MULTIPLES" en Compañías
+            if (cias.includes("MULTIPLES")) {
+                sCia.value = "MULTIPLES";
+            } else {
+                sCia.value = "TODOS";
+            }
+
+            // Regla 2: Preseleccionar "Distribuidores" en Grupo de Clientes
+            if (grupos.includes("Distribuidores")) {
+                sGrupo.value = "Distribuidores";
+            } else {
+                sGrupo.value = "TODOS";
+            }
+
+            // Regla 3: Detectar y preseleccionar el último mes cronológico disponible
+            if (meses.length > 0) {
+                const ultimoMesDisponible = meses[meses.length - 1]; // Captura el período más reciente
+                sMes.value = ultimoMesDisponible;
+            } else {
+                sMes.value = "TODOS";
+            }
         }
+        
         function procesarYFiltrarDashboard() {
             const c_sel = document.getElementById("filtro-cia").value;
             const g_sel = document.getElementById("filtro-grupo").value;
