@@ -299,212 +299,183 @@
     <!-- Vinculación del archivo aislado de ajustes -->
     <script src="config.js"></script>
     <script>
-        let base_datos_global = [];
-        let instGrafico1 = null;
-        let instGrafico2 = null;
-        let instGrafico3 = null;
+        // Paleta institucional MAMUSA
+const paletaInstitucional = [
+    '#3B82F6', // Azul Eléctrico
+    '#EF4444', // Coral / Rojo
+    '#8B5CF6', // Púrpura
+    '#10B981', // Verde Menta
+    '#F59E0B', // Amarillo
+    '#EC4899', // Rosa / Acento
+    '#06B6D4'  // Cian
+];
 
-        const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-        const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
+let myChartResumen = null;
+let myChartFAvsPR = null;
+let myChartVendedorCat = null;
 
-        async function conectarYDescargarBaseDatos() {
-            try {
-                const respuesta = await fetch(URL_LECTURA_NUBE);
-                const textoRaw = await respuesta.text();
-                const jsonLimpio = JSON.parse(textoRaw.substring(47, textoRaw.length - 2));
-                const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
-                
-                base_datos_global = jsonLimpio.table.rows.map(r => {
-                    let obj = {};
-                    r.c.forEach((celda, index) => {
-                        let colName = columnas[index] || `Col_${index}`;
-                        obj[colName] = celda ? celda.v : "";
-                    });
-                    return obj;
-                });
+function renderizarGraficosMAMUSA(dataGlobal, dataFiltrada) {
+    // ----------------------------------------------------
+    // GRÁFICO 1: Resumen Comercial General (Barras Simples - Azul Minimalista)
+    // ----------------------------------------------------
+    const mesesFijos = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const ingresosMensuales = new Array(12).fill(0);
 
-                document.getElementById("status-conexion").innerText = "● Sincronizado en Vivo";
-                document.getElementById("status-conexion").style.color = "#2ECC71";
+    dataFiltradaforEach = dataFiltrada.forEach(row => {
+        // Asumiendo formato de fecha o mes extraído en la data
+        const mesIdx = parseInt(row.Mes_Index || row.Mes) - 1; 
+        if (mesIdx >= 0 && mesIdx < 12) {
+            ingresosMensuales[mesIdx] += parseFloat(row.Monto_Ingreso || row.Total || 0);
+        }
+    });
 
-                ejecutarCalculoTituloDinamico();
-                inicializarSegmentadoresFiltros();
-                procesarYFiltrarDashboard();
+    const ctx1 = document.getElementById('chartResumenComercial').getContext('2d');
+    if (myChartResumen) myChartResumen.destroy();
 
-            } catch (error) {
-                console.error("❌ Error de carga analítica:", error);
+    myChartResumen = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: mesesFijos,
+            datasets: [{
+                label: 'Ingreso Neto ($)',
+                data: ingresosMensuales,
+                backgroundColor: '#3B82F6',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94A3B8' } },
+                x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
             }
         }
+    });
 
-        function ejecutarCalculoTituloDinamico() {
-            let mapaCia = {};
-            base_datos_global.forEach(d => {
-                if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1;
-            });
-            let compañiaMasFrecuente = "MAMUSA";
-            let maxConteo = 0;
-            Object.keys(mapaCia).forEach(c => {
-                if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; }
-            });
-            document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
+    // ----------------------------------------------------
+    // GRÁFICO 2: Comparativo Mensual FA vs PR (Inalterable a Filtros - 12 Meses Fijos)
+    // ----------------------------------------------------
+    const faMensual = new Array(12).fill(0);
+    const prMensual = new Array(12).fill(0);
+
+    // Usa dataGlobal completa para ignorar los filtros del panel izquierdo
+    dataGlobal.forEach(row => {
+        const mesIdx = parseInt(row.Mes_Index || row.Mes) - 1;
+        if (mesIdx >= 0 && mesIdx < 12) {
+            if (row.Tipo_Registro === 'FA' || row.origen === 'FA') {
+                faMensual[mesIdx] += parseFloat(row.Monto_Ingreso || row.Total || 0);
+            } else if (row.Tipo_Registro === 'PR' || row.origen === 'PR') {
+                prMensual[mesIdx] += parseFloat(row.Monto_Ingreso || row.Total || 0);
+            }
         }
+    });
 
-        function inicializarSegmentadoresFiltros() {
-            const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
-            const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
-            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
-            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
+    const ctx2 = document.getElementById('chartComparativoFAvsPR').getContext('2d');
+    if (myChartFAvsPR) myChartFAvsPR.destroy();
 
-            const sCia = document.getElementById("filtro-cia"); cias.forEach(c => sCia.options.add(new Option(c, c)));
-            const sGrupo = document.getElementById("filtro-grupo"); grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
-            const sMes = document.getElementById("filtro-mes"); meses.forEach(m => sMes.options.add(new Option(m, m)));
-            const sOrig = document.getElementById("filtro-origen"); origenes.forEach(o => sOrig.options.add(new Option(o, o)));
-            const sVend = document.getElementById("filtro-vendedor"); vendedores.forEach(v => sVend.options.add(new Option(v, v)));
-        }
-        function procesarYFiltrarDashboard() {
-            const c_sel = document.getElementById("filtro-cia").value;
-            const g_sel = document.getElementById("filtro-grupo").value;
-            const m_sel = document.getElementById("filtro-mes").value;
-            const o_sel = document.getElementById("filtro-origen").value;
-            const v_sel = document.getElementById("filtro-vendedor").value;
-
-            document.getElementById("titulo-grafico-vendedor").innerText = `3. Análisis por Vendedor: ${v_sel === "TODOS" ? "Todos" : v_sel}`;
-
-            let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
-            let datos_grafico1 = Array(12).fill(0);
-
-            base_datos_global.forEach(d => {
-                let inc = parseFloat(d.Ingreso) || 0;
-                let mIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
-                v_neto_ejercicio += inc;
-                v_vol_ejercicio += parseFloat(d.Cantidad) || 0;
-                if(mIndex !== -1) datos_grafico1[mIndex] += inc;
-            });
-            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
-
-            let data_filtrada = base_datos_global.filter(d => {
-                return (c_sel === "TODOS" || d.CIA === c_sel) &&
-                       (g_sel === "TODOS" || d.Grupo_Cliente === g_sel) &&
-                       (m_sel === "TODOS" || d.Mes === m_sel) &&
-                       (o_sel === "TODOS" || d.origen === o_sel) &&
-                       (v_sel === "TODOS" || d.Vendedor === v_sel);
-            });
-
-            let v_neto_mes = 0; let v_vol_mes = 0;
-            let fact_monto = 0; let fact_und = 0;
-            let pres_monto = 0; let pres_und = 0;
-            let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {};
-            
-            let general_FA = Array(12).fill(0); let general_PR = Array(12).fill(0);
-            let resumen_vendedores_dinamico = {};
-
-            data_filtrada.forEach(d => {
-                let qty = parseFloat(d.Cantidad) || 0;
-                let inc = parseFloat(d.Ingreso) || 0;
-                let origStr = String(d.origen || "").toUpperCase();
-                let mesIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
-
-                v_neto_mes += inc; v_vol_mes += qty;
-
-                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { 
-                    fact_monto += inc; fact_und += qty; 
-                    if(mesIndex !== -1) general_FA[mesIndex] += inc;
-                }
-                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { 
-                    pres_monto += inc; pres_und += qty; 
-                    if(mesIndex !== -1) general_PR[mesIndex] += inc;
-                }
-
-                // Acumulador exclusivo Gráfico 3
-                let vName = d.Vendedor || "Sin Asesor";
-                resumen_vendedores_dinamico[vName] = (resumen_vendedores_dinamico[vName] || 0) + inc;
-
-                let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
-                if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
-                resumen_clientes[c_name].qty += qty; resumen_clientes[c_name].inc += inc;
-
-                if (d.Categoria) {
-                    let catNorm = String(d.Categoria).toUpperCase().trim();
-                    if (!resumen_lineas[catNorm]) resumen_lineas[catNorm] = { qty: 0, inc: 0 };
-                    resumen_lineas[catNorm].qty += qty; resumen_lineas[catNorm].inc += inc;
-
-                    let prodClave = d.Producto || "S/P";
-                    if (!ranking_productos[catNorm]) ranking_productos[catNorm] = {};
-                    ranking_productos[catNorm][prodClave] = (ranking_productos[catNorm][prodClave] || 0) + qty;
-                }
-            });
-
-            // Pintar KPIs
-            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
-            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
-            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
-
-            // Renderizar Tablas
-            const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
-            Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
-                tBodyC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`;
-            });
-
-            const tBodyL = document.getElementById("tabla-lineas-body"); tBodyL.innerHTML = "";
-            Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc).forEach(l => {
-                let prom = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
-                tBodyL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${prom.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
-            });
-
-            const tBodyTop6 = document.getElementById("tabla-top6-body"); tBodyTop6.innerHTML = "";
-            const categoriasFijas = ["PASTILLAS", "BLOQUES", "BANDAS", "ROLLOS", "LIGA", "REFRIGERANTES"];
-            categoriasFijas.forEach(cat => {
-                let proModelLeader = "S/P"; let maxQtyLeader = 0;
-                if (ranking_productos[cat]) {
-                    Object.keys(ranking_productos[cat]).forEach(p => {
-                        if (ranking_productos[cat][p] > maxQtyLeader) { maxQtyLeader = ranking_productos[cat][p]; proModelLeader = p; }
-                    });
-                }
-                tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
-            });
-
-            // 📊 GRÁFICO 1: FIJO INICIAL AZUL 📊
-            if (instGrafico1) { instGrafico1.destroy(); }
-            instGrafico1 = new Chart(document.getElementById('graficoNetoSimple').getContext('2d'), {
-                type: 'bar',
-                data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ label: 'Ingreso Neto por Mes (\$)', data: datos_grafico1, backgroundColor: '#0052FF', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-            });
-
-            // 📊 GRÁFICO 2: BARRAS AGRUPADAS PARALELAS DE 12 MESES 📊
-            if (instGrafico2) { instGrafico2.destroy(); }
-            instGrafico2 = new Chart(document.getElementById('graficoBarrasParalelas').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: LISTA_MESES_CONSTANTE,
-                    datasets: [
-                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', borderRadius: 4 },
-                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', borderRadius: 4 }
-                    ]
+    myChartFAvsPR = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: mesesFijos,
+            datasets: [
+                {
+                    label: 'Facturación (FA)',
+                    data: faMensual,
+                    backgroundColor: '#10B981', // Verde Menta
+                    borderRadius: 3
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94A3B8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-            });
-
-            // 📊 GRÁFICO 3: ANÁLISIS POR VENDEDOR TOTALMENTE DINÁMICO REACIVO A FILTROS 📊
-            let listaVendedoresEje = Object.keys(resumen_vendedores_dinamico);
-            let listaMontosEje = listaVendedoresEje.map(v => resumen_vendedores_dinamico[v]);
-            
-            if (instGrafico3) { instGrafico3.destroy(); }
-            instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: listaVendedoresEje,
-                    datasets: [{ label: 'Total Ventas por Filtro (\$)', data: listaMontosEje, backgroundColor: ['#0052FF', '#FF6B6B', '#9F7AEA', '#F59E0B', '#2ECC71'], borderRadius: 4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-            });
+                {
+                    label: 'Presupuesto (PR)',
+                    data: prMensual,
+                    backgroundColor: '#94A3B8', // Gris / Blanco institucional
+                    borderRadius: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#FFFFFF' } } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94A3B8' } },
+                x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+            }
         }
+    });
 
-        window.onload = conectarYDescargarBaseDatos;
-    </script>
+    // ----------------------------------------------------
+    // GRÁFICO 3: Análisis por Vendedor / Categoría (Reactivo a Filtros)
+    // ----------------------------------------------------
+    const categoriasFijas = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
+    
+    // Extraer vendedores únicos presentes en la data filtrada
+    const vendedoresSet = [...new Set(dataFiltrada.map(row => row.Vendedor || 'GENERAL'))].filter(Boolean);
+
+    // Estructurar datasets por cada vendedor
+    const datasetsVendedores = vendedoresSet.map((vendedor, index) => {
+        const dataPorCategoria = categoriasFijas.map(cat => {
+            let suma = 0;
+            dataFiltrada.forEach(row => {
+                const categoriaFila = (row.Categoria || row.Grupo_Cliente || '').toUpperCase();
+                const vendedorFila = row.Vendedor || 'GENERAL';
+                if (categoriaFila.includes(cat) && vendedorFila === vendedor) {
+                    suma += parseFloat(row.Monto_Ingreso || row.Total || 0);
+                }
+            });
+            return suma;
+        });
+
+        const colorAsignado = paletaInstitucional[index % paletaInstitucional.length];
+
+        return {
+            label: vendedor,
+            data: dataPorCategoria,
+            backgroundColor: colorAsignado,
+            borderRadius: 4
+        };
+    });
+
+    const ctx3 = document.getElementById('chartVendedorCategoria').getContext('2d');
+    if (myChartVendedorCat) myChartVendedorCat.destroy();
+
+    myChartVendedorCat = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: categoriasFijas,
+            datasets: datasetsVendedores
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#FFFFFF' } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const vendedor = context.dataset.label;
+                            const monto = context.parsed.y.toLocaleString('es-VE', { style: 'currency', currency: 'USD' });
+                            return `${vendedor}; ${monto}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    stacked: false, 
+                    grid: { color: 'rgba(255,255,255,0.1)' }, 
+                    ticks: { color: '#94A3B8' } 
+                },
+                x: { 
+                    stacked: false, 
+                    grid: { display: false }, 
+                    ticks: { color: '#FFFFFF', font: { weight: 'bold' } } 
+                }
+            }
+        }
+    });
+}
+            </script>
 </body>
 </html>
