@@ -15,6 +15,8 @@
             --azul-electrico: #0052FF;
             --verde-menta: #2ECC71;
             --coral-suave: #FF6B6B;
+            --purpura-neon: #9F7AEA;
+            --amarillo-oro: #F59E0B;
             --texto-principal: #F8F9FA;
             --texto-secundario: #94A3B8;
         }
@@ -51,6 +53,7 @@
         }
 
         .main-content { display: flex; flex-direction: column; gap: 20px; }
+
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .kpi-card { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; position: relative; }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
@@ -72,9 +75,12 @@
         .split-monto.fact { color: var(--verde-menta); }
         .split-monto.pres { color: #E2E8F0; }
         .split-und { font-size: 11px; color: var(--texto-secundario); }
-
-        /* SECCIÓN DE REJILLA DE GRÁFICOS MULTI-PANEL */
-        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
+    </style>
+    <style>
+        /* CONTENEDORES INDEPENDIENTES PARA GRÁFICOS */
+        .chart-row-top { width: 100%; margin-bottom: 10px; }
+        .charts-grid-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
+        
         .chart-card-box { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
         .chart-header-title { font-size: 13px; font-weight: 700; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
         .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 260px; }
@@ -94,10 +100,38 @@
             .dashboard-container { grid-template-columns: 1fr; }
             header { flex-direction: column; gap: 10px; text-align: center; }
             .kpi-row { grid-template-columns: 1fr; }
-            .charts-grid { grid-template-columns: 1fr; }
+            .charts-grid-bottom { grid-template-columns: 1fr; }
             .data-section { grid-template-columns: 1fr; }
         }
+    </style>
+</head>
+    <style>
+        /* CONTENEDORES INDEPENDIENTES PARA GRÁFICOS */
+        .chart-row-top { width: 100%; margin-bottom: 10px; }
+        .charts-grid-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
+        
+        .chart-card-box { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
+        .chart-header-title { font-size: 13px; font-weight: 700; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
+        .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 260px; }
 
+        .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .table-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; max-height: 380px; overflow-y: auto; }
+        .table-title { font-size: 13px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { color: var(--texto-secundario); padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--borde-card); font-weight: 600; }
+        td { padding: 10px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); color: #E2E8F0; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .monto-num { text-align: right; font-variant-numeric: tabular-nums; }
+        .badge-cat { background: rgba(0, 82, 255, 0.15); color: #60A5FA; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 10px; text-align: center; }
+            .kpi-row { grid-template-columns: 1fr; }
+            .charts-grid-bottom { grid-template-columns: 1fr; }
+            .data-section { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -108,7 +142,7 @@
     </header>
 
     <div class="dashboard-container">
-        <!-- [PANEL IZQUIERDO] FILTROS EN ORDEN ESTRICTO REQUERIDO -->
+        <!-- PANEL IZQUIERDO -->
         <aside class="sidebar">
             <div class="filter-group">
                 <label>Empresas</label>
@@ -146,7 +180,7 @@
             </div>
         </aside>
 
-        <!-- PANEL CENTRAL DE CONTENIDO -->
+        <!-- PANEL CENTRAL -->
         <main class="main-content">
             <div class="kpi-row">
                 <div class="kpi-card blue">
@@ -182,15 +216,23 @@
                 </div>
             </div>
 
-            <!-- 📊 REJILLA PARA LOS DOS GRÁFICOS CONSTANTES DE 12 MESES HÍBRIDOS (IMAGEN 2) 📊 -->
-            <div class="charts-grid">
+            <!-- CONTENEDOR EXCLUSIVO SUPERIOR - GRÁFICO 1 -->
+            <div class="chart-row-top">
                 <div class="chart-card-box">
-                    <div class="chart-header-title">1. Resumen Comercial General (12 Meses Constante)</div>
-                    <div class="chart-wrapper"><canvas id="graficoGeneralHistorico"></canvas></div>
+                    <div class="chart-header-title">1. Resumen Comercial General (Ventas Netas por Mes)</div>
+                    <div class="chart-wrapper"><canvas id="graficoNetoSimple"></canvas></div>
+                </div>
+            </div>
+
+            <!-- SEGUNDO CONTENEDOR EN REJILLA - GRÁFICOS 2 Y 3 -->
+            <div class="charts-grid-bottom">
+                <div class="chart-card-box">
+                    <div class="chart-header-title">2. Comparativo Mensual de Desempeño (FA vs PR)</div>
+                    <div class="chart-wrapper"><canvas id="graficoBarrasParalelas"></canvas></div>
                 </div>
                 <div class="chart-card-box">
-                    <div class="chart-header-title" id="titulo-grafico-vendedor">2. Desempeño Compuesto por Vendedor (FA + PR)</div>
-                    <div class="chart-wrapper"><canvas id="graficoVendedorHistorico"></canvas></div>
+                    <div class="chart-header-title" id="titulo-grafico-vendedor">3. Análisis por Vendedor / Línea (Dinámico)</div>
+                    <div class="chart-wrapper"><canvas id="graficoVendedorDinamico"></canvas></div>
                 </div>
             </div>
 
@@ -227,14 +269,14 @@
             </div>
         </main>
     </div>
-    <!-- Vinculación de variables configuradas -->
+    <!-- Vinculación del archivo aislado de ajustes -->
     <script src="config.js"></script>
     <script>
         let base_datos_global = [];
-        let instanciaGraficoGeneral = null;
-        let instanciaGraficoVendedor = null;
+        let instGrafico1 = null;
+        let instGrafico2 = null;
+        let instGrafico3 = null;
 
-        // Mapeo cronológico solicitado para transformar '26-01' en 'Ene', '26-02' en 'Feb', etc.
         const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
 
@@ -299,12 +341,17 @@
             const o_sel = document.getElementById("filtro-origen").value;
             const v_sel = document.getElementById("filtro-vendedor").value;
 
-            document.getElementById("titulo-grafico-vendedor").innerText = `2. Análisis por Asesor: ${v_sel === "TODOS" ? "Todos los Vendedores" : v_sel} (FA + PR)`;
+            document.getElementById("titulo-grafico-vendedor").innerText = `3. Análisis por Vendedor: ${v_sel === "TODOS" ? "Todos" : v_sel}`;
 
             let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
+            let datos_grafico1 = Array(12).fill(0);
+
             base_datos_global.forEach(d => {
-                v_neto_ejercicio += parseFloat(d.Ingreso) || 0;
+                let inc = parseFloat(d.Ingreso) || 0;
+                let mIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
+                v_neto_ejercicio += inc;
                 v_vol_ejercicio += parseFloat(d.Cantidad) || 0;
+                if(mIndex !== -1) datos_grafico1[mIndex] += inc;
             });
             document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
@@ -321,9 +368,9 @@
             let fact_monto = 0; let fact_und = 0;
             let pres_monto = 0; let pres_und = 0;
             let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {};
-
+            
             let general_FA = Array(12).fill(0); let general_PR = Array(12).fill(0);
-            let vendedor_FA = Array(12).fill(0); let vendedor_PR = Array(12).fill(0);
+            let resumen_vendedores_dinamico = {};
 
             data_filtrada.forEach(d => {
                 let qty = parseFloat(d.Cantidad) || 0;
@@ -342,6 +389,10 @@
                     if(mesIndex !== -1) general_PR[mesIndex] += inc;
                 }
 
+                // Acumulador exclusivo Gráfico 3
+                let vName = d.Vendedor || "Sin Asesor";
+                resumen_vendedores_dinamico[vName] = (resumen_vendedores_dinamico[vName] || 0) + inc;
+
                 let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
                 if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
                 resumen_clientes[c_name].qty += qty; resumen_clientes[c_name].inc += inc;
@@ -357,18 +408,7 @@
                 }
             });
 
-            base_datos_global.forEach(d => {
-                if (v_sel !== "TODOS" && d.Vendedor !== v_sel) return;
-                let inc = parseFloat(d.Ingreso) || 0;
-                let origStr = String(d.origen || "").toUpperCase();
-                let mesIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
-
-                if (mesIndex !== -1) {
-                    if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) vendedor_FA[mesIndex] += inc;
-                    if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) vendedor_PR[mesIndex] += inc;
-                }
-            });
-
+            // Pintar KPIs
             document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
             document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
@@ -376,6 +416,7 @@
             document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
 
+            // Renderizar Tablas
             const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
             Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
                 tBodyC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`;
@@ -399,44 +440,40 @@
                 tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
             });
 
-            if (instanciaGraficoGeneral) { instanciaGraficoGeneral.destroy(); }
-            instanciaGraficoGeneral = new Chart(document.getElementById('graficoGeneralHistorico').getContext('2d'), {
+            // 📊 GRÁFICO 1: FIJO INICIAL AZUL 📊
+            if (instGrafico1) { instGrafico1.destroy(); }
+            instGrafico1 = new Chart(document.getElementById('graficoNetoSimple').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: LISTA_MESES_CONSTANTE,
-                    datasets: [
-                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', stack: 'Stack0' },
-                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', stack: 'Stack0' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94A3B8' } } },
-                    scales: {
-                        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
-                        x: { stacked: true, grid: { display: false }, ticks: { color: '#94A3B8' } }
-                    }
-                }
+                data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ label: 'Ingreso Neto por Mes (\$)', data: datos_grafico1, backgroundColor: '#0052FF', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
             });
 
-            if (instanciaGraficoVendedor) { instanciaGraficoVendedor.destroy(); }
-            instanciaGraficoVendedor = new Chart(document.getElementById('graficoVendedorHistorico').getContext('2d'), {
+            // 📊 GRÁFICO 2: BARRAS AGRUPADAS PARALELAS DE 12 MESES 📊
+            if (instGrafico2) { instGrafico2.destroy(); }
+            instGrafico2 = new Chart(document.getElementById('graficoBarrasParalelas').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: LISTA_MESES_CONSTANTE,
                     datasets: [
-                        { label: 'Facturación (FA)', data: vendedor_FA, backgroundColor: '#0052FF', stack: 'Stack1' },
-                        { label: 'Presupuesto (PR)', data: vendedor_PR, backgroundColor: 'rgba(255, 107, 107, 0.4)', stack: 'Stack1' }
+                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', borderRadius: 4 },
+                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', borderRadius: 4 }
                     ]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94A3B8' } } },
-                    scales: {
-                        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
-                        x: { stacked: true, grid: { display: false }, ticks: { color: '#94A3B8' } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94A3B8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
+            });
+
+            // 📊 GRÁFICO 3: ANÁLISIS POR VENDEDOR TOTALMENTE DINÁMICO REACIVO A FILTROS 📊
+            let listaVendedoresEje = Object.keys(resumen_vendedores_dinamico);
+            let listaMontosEje = listaVendedoresEje.map(v => resumen_vendedores_dinamico[v]);
+            
+            if (instGrafico3) { instGrafico3.destroy(); }
+            instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: listaVendedoresEje,
+                    datasets: [{ label: 'Total Ventas por Filtro (\$)', data: listaMontosEje, backgroundColor: ['#0052FF', '#FF6B6B', '#9F7AEA', '#F59E0B', '#2ECC71'], borderRadius: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
             });
         }
 
