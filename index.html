@@ -215,6 +215,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 🌟 NUEVA TARJETA 4: DESGLOSE DINÁMICO POR GRUPO DE CLIENTE (MAMUSA BI) 🌟 -->
+                <div class="kpi-card blue">
+                    <div class="kpi-title">Resumen por Grupo de Cliente <span id="tag-mes-grupo" style="margin-left:5px; font-weight:bold; color:#94A3B8;"></span></div>
+                    <div class="kpi-desglose-container" id="contenedor-dinamico-grupos">
+                        <!-- El motor de JavaScript inyectará aquí los micro-carriles automáticamente según el filtro activo -->
+                        <div style="color: var(--texto-secundario); font-size: 13px; padding-top: 10px;">Procesando grupos...</div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- CONTENEDOR EXCLUSIVO SUPERIOR - GRÁFICO 1 -->
@@ -461,6 +471,68 @@
             document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
             document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
             document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
+            //
+            //
+            // ==============================================================================
+            // 🧮 ALGORITMO MAESTRO DE AGREGACIÓN POR GRUPO DE CLIENTE DINÁMICO 🧮
+            // ==============================================================================
+            let resumen_grupos_kpi = {};
+
+            // 1. Recorremos la matriz de datos ya filtrada para agrupar montos y juegos por cada grupo activo
+            data_filtrada.forEach(d => {
+                let qty = parseFloat(d.Cantidad) || 0;
+                let inc = parseFloat(d.Ingreso) || 0;
+                let gName = String(d.Grupo_Cliente || d.Grupo_Cliente || "Otros").trim();
+
+                if (!resumen_grupos_kpi[gName]) {
+                    resumen_grupos_kpi[gName] = { monto: 0, unidades: 0 };
+                }
+                resumen_grupos_kpi[gName].monto += inc;
+                resumen_grupos_kpi[gName].unidades += qty;
+            });
+
+            // 2. Sincronizamos la etiqueta del mes en el título de la Tarjeta 4 para mantener el Theme minimalista
+            const elTagGrupoMes = document.getElementById("tag-mes-grupo");
+            if (elTagGrupoMes) {
+                if (m_sel === "TODOS") {
+                    elTagGrupoMes.innerText = "• Todos"; elTagGrupoMes.style.color = "#94A3B8";
+                } else {
+                    const dicMeses = {"26-01":"• Ene","26-02":"• Feb","26-03":"• Mar","26-04":"• Abr","26-05":"• May","26-06":"• Jun","26-07":"• Jul","26-08":"• Ago","26-09":"• Sep","26-10":"• Oct","26-11":"• Nov","26-12":"• Dic"};
+                    elTagGrupoMes.innerText = dicMeses[m_sel] || "• " + m_sel;
+                    elTagGrupoMes.style.color = "#0052FF"; // Combinación Azul Eléctrico para el foco activo
+                }
+            }
+
+            // 3. Inyectamos de forma elástica y dinámica los micro-carriles en el contenedor HTML
+            const contenedorGruposHTML = document.getElementById("contenedor-dinamico-grupos");
+            contenedorGruposHTML.innerHTML = ""; // Limpiamos residuos anteriores
+
+            // Ordenamos los grupos de mayor a menor facturación para impacto ejecutivo
+            let gruposOrdenados = Object.keys(resumen_grupos_kpi).sort((a, b) => resumen_grupos_kpi[b].monto - resumen_grupos_kpi[a].monto);
+
+            if (gruposOrdenados.length === 0) {
+                contenedorGruposHTML.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px;">Sin registros para este filtro</div>`;
+            }
+
+            gruposOrdenados.forEach(grupo => {
+                let mnt = resumen_grupos_kpi[grupo].monto;
+                let und = resumen_grupos_kpi[grupo].unidades;
+
+                // Construimos el micro-carril adaptando clases del Theme minimalista
+                let splitRowHTML = `
+                    <div class="kpi-split-row">
+                        <span class="split-label" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${grupo}:</span>
+                        <div class="split-val-box">
+                            <div class="split-monto" style="color: var(--azul-electrico); font-size: 15px;">$${mnt.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+                            <div class="split-und">Total: ${und.toLocaleString('es-ES')} Jgos</div>
+                        </div>
+                    </div>`;
+                
+                contenedorGruposHTML.innerHTML += splitRowHTML;
+            });
+
+            //
+            //
 
             const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
             Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
