@@ -232,7 +232,6 @@
                     <div class="chart-wrapper"><canvas id="graficoBarrasParalelas"></canvas></div>
                 </div>
                 <div class="chart-card-box">
-                    <!--<div class="chart-header-title" id="titulo-grafico-vendedor">3. Análisis por Vendedor / Línea (Dinámico)</div>-->
                     <div class="chart-header-title" id="titulo-grafico-vendedor">3. Desempeño por Categoría y Vendedor <span id="tag-mes-grafico" style="margin-left:5px; font-weight:bold;"></span></div>
                     <div class="chart-wrapper"><canvas id="graficoVendedorDinamico"></canvas></div>
                 </div>
@@ -374,7 +373,10 @@
             const o_sel = document.getElementById("filtro-origen").value;
             const v_sel = document.getElementById("filtro-vendedor").value;
 
-            document.getElementById("titulo-grafico-vendedor").innerText = `3. Desempeño por Categoría y Vendedor (Filtros Reactivos)`;
+            //document.getElementById("titulo-grafico-vendedor").innerText = `3. Desempeño por Categoría y Vendedor (Filtros Reactivos)`;
+            // Cambiamos el .innerText plano por .innerHTML estructural que conserva el tag del mes
+            document.getElementById("titulo-grafico-vendedor").innerHTML = `3. Desempeño por Categoría y Vendedor <span id="tag-mes-grafico" style="margin-left:5px; font-weight:bold;"></span>`;
+
 
             let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
             let datos_grafico1 = Array(12).fill(0);
