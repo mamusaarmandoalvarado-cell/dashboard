@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMUSA - Analítico Comercial Premium 2026</title>
+    <title>MAMUSA - Analítico Comercial Protegido 2026</title>
     <!-- Tipografía Ejecutiva y Soporte Gráfico Local -->
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="chart.js"></script>
@@ -15,21 +15,49 @@
             --azul-electrico: #0052FF;
             --verde-menta: #2ECC71;
             --coral-suave: #FF6B6B;
-            --purpura-neon: #9F7AEA;
-            --amarillo-oro: #F59E0B;
             --texto-principal: #F8F9FA;
             --texto-secundario: #94A3B8;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; padding: 15px; }
+        body { background-color: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; padding: 15px; overflow-x: hidden; }
+
+        /* PANTALLA DE LOGIN PREMIUM SEGURA */
+        .login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: var(--bg-principal); display: flex; justify-content: center; 
+            align-items: center; z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .login-box {
+            background: var(--bg-card); border: 1px solid var(--borde-card); backdrop-filter: blur(15px);
+            padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            text-align: center; display: flex; flex-direction: column; gap: 20px;
+        }
+        .login-box h2 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .login-box h2 span { color: var(--azul-electrico); }
+        .login-group { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+        .login-group label { font-size: 11px; text-transform: uppercase; color: var(--texto-secundario); font-weight: 700; }
+        .login-input {
+            background: #1E293B; border: 1px solid var(--borde-card); color: var(--texto-principal);
+            padding: 12px; border-radius: 8px; font-size: 14px; outline: none; width: 100%;
+        }
+        .login-btn {
+            background: var(--azul-electrico); color: var(--texto-principal); border: none;
+            padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: background 0.3s; margin-top: 10px;
+        }
+        .login-btn:hover { background: #0044DD; }
+        .login-error { color: var(--coral-suave); font-size: 13px; font-weight: 600; display: none; }
+    </style>
+    <style>
+        /* INTERFAZ DEL DASHBOARD (OCULTA POR DEFECTO ANTES DE AUTENTICAR) */
+        .app-wrapper { display: none; flex-direction: column; gap: 20px; }
 
         header {
             background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid var(--borde-card);
-            border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex;
-            justify-content: space-between; align-items: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
-
         header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
         header h1 span { color: var(--azul-electrico); }
 
@@ -54,7 +82,7 @@
 
         .main-content { display: flex; flex-direction: column; gap: 20px; }
 
-        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .kpi-card { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; position: relative; }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
         
@@ -63,29 +91,27 @@
         .kpi-card.coral::before { background-color: var(--coral-suave); }
 
         .kpi-title { font-size: 11px; color: var(--texto-secundario); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
-        .kpi-value { font-size: 26px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+        .kpi-value { font-size: 24px; font-weight: 700; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
         .kpi-subtext { font-size: 12px; color: var(--texto-secundario); }
-
-        .kpi-desglose-container { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
-        .kpi-split-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+    </style>
+    <style>
+        .kpi-desglose-container { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .kpi-split-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
         .kpi-split-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .split-label { font-size: 13px; font-weight: 600; color: #E2E8F0; }
+        .split-label { font-size: 12px; font-weight: 600; color: #E2E8F0; }
         .split-val-box { text-align: right; }
-        .split-monto { font-size: 16px; font-weight: 700; }
+        .split-monto { font-size: 14px; font-weight: 700; }
         .split-monto.fact { color: var(--verde-menta); }
         .split-monto.pres { color: #E2E8F0; }
         .split-und { font-size: 11px; color: var(--texto-secundario); }
-    </style>
-    <style>
-        /* CONTENEDORES INDEPENDIENTES PARA GRÁFICOS */
+
         .chart-row-top { width: 100%; margin-bottom: 10px; }
         .charts-grid-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
-        
         .chart-card-box { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
         .chart-header-title { font-size: 13px; font-weight: 700; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
         .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 260px; }
 
-        .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .table-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; max-height: 380px; overflow-y: auto; }
         .table-title { font-size: 13px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
 
@@ -96,199 +122,102 @@
         .monto-num { text-align: right; font-variant-numeric: tabular-nums; }
         .badge-cat { background: rgba(0, 82, 255, 0.15); color: #60A5FA; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
 
-        @media (max-width: 768px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            header { flex-direction: column; gap: 10px; text-align: center; }
-            .kpi-row { grid-template-columns: 1fr; }
-            .charts-grid-bottom { grid-template-columns: 1fr; }
-            .data-section { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-    <style>
-        /* CONTENEDORES INDEPENDIENTES PARA GRÁFICOS */
-        .chart-row-top { width: 100%; margin-bottom: 10px; }
-        .charts-grid-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
-        
-        .chart-card-box { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
-        .chart-header-title { font-size: 13px; font-weight: 700; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
-        .chart-wrapper { position: relative; flex-grow: 1; width: 100%; height: 260px; }
-
-        .data-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-        .table-container { background: var(--bg-card); border: 1px solid var(--borde-card); border-radius: 12px; padding: 20px; max-height: 380px; overflow-y: auto; }
-        .table-title { font-size: 13px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; border-left: 3px solid var(--azul-electrico); padding-left: 8px; letter-spacing: 0.5px; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { color: var(--texto-secundario); padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--borde-card); font-weight: 600; }
-        td { padding: 10px 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); color: #E2E8F0; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        .monto-num { text-align: right; font-variant-numeric: tabular-nums; }
-        .badge-cat { background: rgba(0, 82, 255, 0.15); color: #60A5FA; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-
-        @media (max-width: 768px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            header { flex-direction: column; gap: 10px; text-align: center; }
-            .kpi-row { grid-template-columns: 1fr; }
-            .charts-grid-bottom { grid-template-columns: 1fr; }
-            .data-section { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1024px) { .dashboard-container { grid-template-columns: 1fr; } .charts-grid-bottom { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1 id="titulo-dashboard">Estadística de Ventas <span>• Cargando...</span></h1>
-        <div class="status-badge" id="status-conexion">● Conectando a la nube...</div>
-    </header>
-
-    <div class="dashboard-container">
-        <!-- PANEL IZQUIERDO -->
-        <aside class="sidebar">
-            <div class="filter-group">
-                <label>Empresas</label>
-                <select class="filter-select" id="filtro-cia" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todas las Compañías --</option>
-                </select>
+    <!-- 🔒 CONTROL DE ACCESO SEGURO BLOQUEANTE -->
+    <div class="login-overlay" id="pantalla-login">
+        <div class="login-box">
+            <h2>MAMUSA <span>• BI Engine</span></h2>
+            <p style="color: var(--texto-secundario); font-size: 13px;">Introduzca las credenciales autorizadas para acceder a los estados financieros consolidados.</p>
+            
+            <div class="login-error" id="error-credenciales">❌ Usuario o Contraseña Incorrectos</div>
+            
+            <div class="login-group">
+                <label>Usuario Corporativo</label>
+                <input type="text" class="login-input" id="input-usuario" placeholder="ej: gerencia_bi" autocomplete="off">
             </div>
-
-            <div class="filter-group">
-                <label>Grupo de Clientes</label>
-                <select class="filter-select" id="filtro-grupo" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Grupos --</option>
-                </select>
+            <div class="login-group">
+                <label>Contraseña de Seguridad</label>
+                <input type="password" class="login-input" id="input-password" placeholder="••••••••" onkeypress="evaluarEnterLogin(event)">
             </div>
-
-            <div class="filter-group">
-                <label>Mes Ejercicio</label>
-                <select class="filter-select" id="filtro-mes" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Meses --</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label>Tipo de Documento</label>
-                <select class="filter-select" id="filtro-origen" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Documentos --</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label>Vendedores</label>
-                <select class="filter-select" id="filtro-vendedor" onchange="procesarYFiltrarDashboard()">
-                    <option value="TODOS">-- Todos los Vendedores --</option>
-                </select>
-            </div>
-        </aside>
-
-        <!-- PANEL CENTRAL -->
-        <main class="main-content">
-            <div class="kpi-row">
-                <div class="kpi-card blue">
-                    <div class="kpi-title">Resumen Ventas del Ejercicio</div>
-                    <div class="kpi-value" id="kpi-neto-ejercicio">$0</div>
-                    <div class="kpi-subtext" id="kpi-volumen-ejercicio">Volumen Ejercicio: 0 Jgos</div>
-                </div>
-
-                <div class="kpi-card green">
-                    <!-- Busca la Tarjeta 2 y déjala exactamente así: -->
-                    <div class="kpi-title">Resumen Ventas del Mes <span id="tag-mes-kpi" style="margin-left:5px; font-weight:bold;"></span></div>
-                    <div class="kpi-value" id="kpi-neto-mes">$0</div>
-                    <div class="kpi-subtext" id="kpi-volumen-mes">Total Juegos: 0</div>
-                </div>
-
-                <div class="kpi-card coral">
-                    <div class="kpi-title">Desglose Documentario Operativo</div>
-                    <div class="kpi-desglose-container">
-                        <div class="kpi-split-row">
-                            <span class="split-label">Facturacion:</span>
-                            <div class="split-val-box">
-                                <div class="split-monto fact" id="kpi-monto-fact">$0</div>
-                                <div class="split-und" id="kpi-und-fact">Volumen Total: 0 Jgos</div>
-                            </div>
-                        </div>
-                        <div class="kpi-split-row">
-                            <span class="split-label">Presupuesto:</span>
-                            <div class="split-val-box">
-                                <div class="split-monto pres" id="kpi-monto-pres">$0</div>
-                                <div class="split-und" id="kpi-und-pres">Volumen Total: 0 Jgos</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🌟 NUEVA TARJETA 4: DESGLOSE DINÁMICO POR GRUPO DE CLIENTE (MAMUSA BI) 🌟 -->
-                <div class="kpi-card blue">
-                    <div class="kpi-title">Resumen por Grupo de Cliente <span id="tag-mes-grupo" style="margin-left:5px; font-weight:bold; color:#94A3B8;"></span></div>
-                    <div class="kpi-desglose-container" id="contenedor-dinamico-grupos">
-                        <!-- El motor de JavaScript inyectará aquí los micro-carriles automáticamente según el filtro activo -->
-                        <div style="color: var(--texto-secundario); font-size: 13px; padding-top: 10px;">Procesando grupos...</div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- CONTENEDOR EXCLUSIVO SUPERIOR - GRÁFICO 1 -->
-            <div class="chart-row-top">
-                <div class="chart-card-box">
-                    <div class="chart-header-title">1. Resumen Comercial General (Ventas Netas por Mes)</div>
-                    <div class="chart-wrapper"><canvas id="graficoNetoSimple"></canvas></div>
-                </div>
-            </div>
-
-            <!-- SEGUNDO CONTENEDOR EN REJILLA - GRÁFICOS 2 Y 3 -->
-            <div class="charts-grid-bottom">
-                <div class="chart-card-box">
-                    <div class="chart-header-title">2. Comparativo Mensual de Desempeño (FA vs PR)</div>
-                    <div class="chart-wrapper"><canvas id="graficoBarrasParalelas"></canvas></div>
-                </div>
-                <div class="chart-card-box">
-                    <div class="chart-header-title" id="titulo-grafico-vendedor">3. Desempeño por Categoría y Vendedor <span id="tag-mes-grafico" style="margin-left:5px; font-weight:bold;"></span></div>
-                    <div class="chart-wrapper"><canvas id="graficoVendedorDinamico"></canvas></div>
-                </div>
-            </div>
-
-            <div class="data-section">
-                <div class="table-container">
-                    <div class="table-title">Inteligencia Comercial de Clientes</div>
-                    <table>
-                        <thead>
-                            <tr><th>Cliente</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th></tr>
-                        </thead>
-                        <tbody id="tabla-clientes-body"></tbody>
-                    </table>
-                </div>
-
-                <div class="table-container">
-                    <div class="table-title">Análisis de Desempeño por Línea</div>
-                    <table>
-                        <thead>
-                            <tr><th>Línea</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th><th>Prom</th></tr>
-                        </thead>
-                        <tbody id="tabla-lineas-body"></tbody>
-                    </table>
-                </div>
-
-                <div class="table-container">
-                    <div class="table-title">Top 6 Productos Más Vendidos</div>
-                    <table>
-                        <thead>
-                            <tr><th>Categoría</th><th>Producto</th><th class="monto-num">Cantidad</th></tr>
-                        </thead>
-                        <tbody id="tabla-top6-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+            
+            <button class="login-btn" onclick="ejecutarAutenticacionSegura()">Acceder al Sistema</button>
+        </div>
     </div>
-    <!-- Vinculación del archivo aislado de ajustes -->
-    <script src="config.js"></script>
-    <!-- Vinculación del archivo de configuración aislado -->
+
+    <!-- 🖥️ ESTRUCTURA VISUAL GENERAL DEL DASHBOARD PREMIUM -->
+    <div class="app-wrapper" id="interfaz-dashboard">
+        <header>
+            <h1 id="titulo-dashboard">Estadística de Ventas <span>• Cargando...</span></h1>
+            <div class="status-badge" id="status-conexion">● Sincronizado en Vivo</div>
+        </header>
+
+        <div class="dashboard-container">
+            <aside class="sidebar">
+                <div class="filter-group"><label>Empresas</label><select class="filter-select" id="filtro-cia" onchange="procesarYFiltrarDashboard()"></select></div>
+                <div class="filter-group"><label>Grupo de Clientes</label><select class="filter-select" id="filtro-grupo" onchange="procesarYFiltrarDashboard()"></select></div>
+                <div class="filter-group"><label>Mes Ejercicio</label><select class="filter-select" id="filtro-mes" onchange="procesarYFiltrarDashboard()"></select></div>
+                <div class="filter-group"><label>Tipo de Documento</label><select class="filter-select" id="filtro-origen" onchange="procesarYFiltrarDashboard()"></select></div>
+                <div class="filter-group"><label>Vendedores</label><select class="filter-select" id="filtro-vendedor" onchange="procesarYFiltrarDashboard()"></select></div>
+            </aside>
+
+            <main class="main-content">
+                <div class="kpi-row">
+                    <div class="kpi-card blue"><div class="kpi-title">Resumen Ventas del Ejercicio</div><div class="kpi-value" id="kpi-neto-ejercicio">$0</div><div class="kpi-subtext" id="kpi-volumen-ejercicio">Volumen: 0 Jgos</div></div>
+                    <div class="kpi-card green"><div class="kpi-title">Resumen Ventas del Mes <span id="tag-mes-kpi"></span></div><div class="kpi-value" id="kpi-neto-mes">$0</div><div class="kpi-subtext" id="kpi-volumen-mes">Total Juegos: 0</div></div>
+                    <div class="kpi-card coral"><div class="kpi-title">Desglose Documentario Operativo</div><div class="kpi-desglose-container"><div class="kpi-split-row"><span class="split-label">Facturacion:</span><div class="split-val-box"><div class="split-monto fact" id="kpi-monto-fact">$0</div><div class="split-und" id="kpi-und-fact">0 Jgos</div></div></div><div class="kpi-split-row"><span class="split-label">Presupuesto:</span><div class="split-val-box"><div class="split-monto pres" id="kpi-monto-pres">$0</div><div class="split-und" id="kpi-und-pres">0 Jgos</div></div></div></div></div>
+                    <div class="kpi-card blue"><div class="kpi-title">Resumen por Grupo de Cliente <span id="tag-mes-grupo"></span></div><div class="kpi-desglose-container" id="contenedor-dinamico-grupos"></div></div>
+                </div>
+                <div class="chart-row-top"><div class="chart-card-box"><div class="chart-header-title">1. Resumen Comercial General (Ventas Netas por Mes)</div><div class="chart-wrapper"><canvas id="graficoNetoSimple"></canvas></div></div></div>
+                <div class="charts-grid-bottom">
+                    <div class="chart-card-box"><div class="chart-header-title">2. Comparativo Mensual de Desempeño (FA vs PR Fijo)</div><div class="chart-wrapper"><canvas id="graficoBarrasParalelas"></canvas></div></div>
+                    <div class="chart-card-box"><div class="chart-header-title" id="titulo-grafico-vendedor">3. Desempeño por Categoría y Vendedor</div><div class="chart-wrapper"><canvas id="graficoVendedorDinamico"></canvas></div></div>
+                </div>
+
+                <div class="data-section">
+                    <div class="table-container"><div class="table-title">Inteligencia Comercial de Clientes</div><table><thead><tr><th>Cliente</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th></tr></thead><tbody id="tabla-clientes-body"></tbody></table></div>
+                    <div class="table-container"><div class="table-title">Análisis de Desempeño por Línea</div><table><thead><tr><th>Línea</th><th class="monto-num">Unidades</th><th class="monto-num">Neto $</th><th>Prom</th></tr></thead><tbody id="tabla-lineas-body"></tbody></table></div>
+                    <div class="table-container"><div class="table-title">Top 6 Productos Más Vendidos</div><table><thead><tr><th>Categoría</th><th>Producto</th><th class="monto-num">Cantidad</th></tr></thead><tbody id="tabla-top6-body"></tbody></table></div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Sincronización del archivo maestro externo -->
     <script src="config.js"></script>
     <script>
+        // ==============================================================================
+        // 🔑 CREDENCIALES EMPRESARIALES DE SEGURIDAD MÓVIL
+        // ==============================================================================
+        const CREDENCIAL_USUARIO_VALIDO = "mamusa_gerencia";
+        const CREDENCIAL_PASSWORD_VALIDO = "MAMUSA2026*";
+
+        function evaluarEnterLogin(event) {
+            if (event.key === "Enter") { ejecutarAutenticacionSegura(); }
+        }
+
+        function ejecutarAutenticacionSegura() {
+            const userDigitado = document.getElementById("input-usuario").value.trim();
+            const passDigitado = document.getElementById("input-password").value;
+            const elError = document.getElementById("error-credenciales");
+
+            if (userDigitado === CREDENCIAL_USUARIO_VALIDO && passDigitado === CREDENCIAL_PASSWORD_VALIDO) {
+                document.getElementById("pantalla-login").style.display = "none";
+                document.getElementById("interfaz-dashboard").style.display = "flex";
+                
+                // Iniciamos la conexión REST hacia Google Sheets estrictamente tras autenticar
+                conectarYDescargarBaseDatos();
+            } else {
+                elError.style.display = "block";
+                document.getElementById("input-password").value = "";
+                document.getElementById("input-password").focus();
+            }
+        }
+
         let base_datos_global = [];
-        let instGrafico1 = null;
-        let instGrafico2 = null;
-        let instGrafico3 = null;
+        let instGrafico1 = null; let instGrafico2 = null; let instGrafico3 = null;
 
         const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
@@ -309,9 +238,6 @@
                     return obj;
                 });
 
-                document.getElementById("status-conexion").innerText = "● Sincronizado en Vivo";
-                document.getElementById("status-conexion").style.color = "#2ECC71";
-
                 ejecutarCalculoTituloDinamico();
                 inicializarSegmentadoresFiltros();
                 procesarYFiltrarDashboard();
@@ -323,335 +249,8 @@
 
         function ejecutarCalculoTituloDinamico() {
             let mapaCia = {};
-            base_datos_global.forEach(d => {
-                if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1;
-            });
-            let compañiaMasFrecuente = "MAMUSA";
-            let maxConteo = 0;
-            Object.keys(mapaCia).forEach(c => {
-                if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; }
-            });
+            base_datos_global.forEach(d => { if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1; });
+            let compañiaMasFrecuente = "MAMUSA"; let maxConteo = 0;
+            Object.keys(mapaCia).forEach(c => { if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; } });
             document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
         }
-
-        function inicializarSegmentadoresFiltros() {
-            // 1. Extraemos y ordenamos los catálogos únicos de la base de datos de internet
-            const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
-            const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
-            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
-            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
-
-            // 2. Llenamos físicamente las cajas desplegables del panel izquierdo
-            const sCia = document.getElementById("filtro-cia"); cias.forEach(c => sCia.options.add(new Option(c, c)));
-            const sGrupo = document.getElementById("filtro-grupo"); grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
-            const sMes = document.getElementById("filtro-mes"); meses.forEach(m => sMes.options.add(new Option(m, m)));
-            const sOrig = document.getElementById("filtro-origen"); origenes.forEach(o => sOrig.options.add(new Option(o, o)));
-            const sVend = document.getElementById("filtro-vendedor"); vendedores.forEach(v => sVend.options.add(new Option(v, v)));
-
-            // ==============================================================================
-            // 🌟 ALGORITMO DE PRESELECCIÓN EJECUTIVA PRE-SET (MAMUSA BI 2026)
-            // ==============================================================================
-            
-            // Regla 1: Preseleccionar "MULTIPLES" en Compañías
-            if (cias.includes("MULTIPLES")) {
-                sCia.value = "MULTIPLES";
-            } else {
-                sCia.value = "TODOS";
-            }
-
-            // Regla 2: Preseleccionar "Distribuidores" en Grupo de Clientes
-            if (grupos.includes("Distribuidores")) {
-                sGrupo.value = "Distribuidores";
-            } else {
-                sGrupo.value = "TODOS";
-            }
-
-            // Regla 3: Detectar y preseleccionar el último mes cronológico disponible
-            if (meses.length > 0) {
-                const ultimoMesDisponible = meses[meses.length - 1]; // Captura el período más reciente
-                sMes.value = ultimoMesDisponible;
-            } else {
-                sMes.value = "TODOS";
-            }
-        }
-        
-        function procesarYFiltrarDashboard() {
-            const c_sel = document.getElementById("filtro-cia").value;
-            const g_sel = document.getElementById("filtro-grupo").value;
-            const m_sel = document.getElementById("filtro-mes").value;
-            const o_sel = document.getElementById("filtro-origen").value;
-            const v_sel = document.getElementById("filtro-vendedor").value;
-
-            //document.getElementById("titulo-grafico-vendedor").innerText = `3. Desempeño por Categoría y Vendedor (Filtros Reactivos)`;
-            // Cambiamos el .innerText plano por .innerHTML estructural que conserva el tag del mes
-            document.getElementById("titulo-grafico-vendedor").innerHTML = `3. Desempeño por Categoría y Vendedor <span id="tag-mes-grafico" style="margin-left:5px; font-weight:bold;"></span>`;
-
-
-            let v_neto_ejercicio = 0; let v_vol_ejercicio = 0;
-            let datos_grafico1 = Array(12).fill(0);
-            
-            // --- GRÁFICO 2 CONSTANTE FIJO: Arreglos inalterables de 12 meses ---
-            let general_FA = Array(12).fill(0); let general_PR = Array(12).fill(0);
-
-            base_datos_global.forEach(d => {
-                let inc = parseFloat(d.Ingreso) || 0;
-                let qty = parseFloat(d.Cantidad) || 0;
-                let mIndex = LISTA_LLAVES_UNIX.indexOf(String(d.Mes).trim());
-                let origStr = String(d.origen || "").toUpperCase();
-                
-                v_neto_ejercicio += inc;
-                v_vol_ejercicio += qty;
-                
-                if(mIndex !== -1) {
-                    datos_grafico1[mIndex] += inc;
-                    // Lógica del Gráfico 2: Almacena todo el histórico sin importar los filtros del panel
-                    if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) general_FA[mIndex] += inc;
-                    if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) general_PR[mIndex] += inc;
-                }
-            });
-            
-            document.getElementById("kpi-neto-ejercicio").innerText = `$${v_neto_ejercicio.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-volumen-ejercicio").innerText = `Volumen Ejercicio: ${v_vol_ejercicio.toLocaleString('es-ES')} Jgos`;
-
-            // --- APLICACIÓN DE FILTROS EN TIEMPO REAL PARA EL RESTO DEL TABLERO ---
-            let data_filtrada = base_datos_global.filter(d => {
-                return (c_sel === "TODOS" || d.CIA === c_sel) &&
-                       (g_sel === "TODOS" || d.Grupo_Cliente === g_sel) &&
-                       (m_sel === "TODOS" || d.Mes === m_sel) &&
-                       (o_sel === "TODOS" || d.origen === o_sel) &&
-                       (v_sel === "TODOS" || d.Vendedor === v_sel);
-            });
-
-            let v_neto_mes = 0; let v_vol_mes = 0;
-            let fact_monto = 0; let fact_und = 0;
-            let pres_monto = 0; let pres_und = 0;
-            let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {};
-            
-            // --- ESTRUCTURAS EXCLUSIVAS PARA LA MATRIZ DINÁMICA DEL GRÁFICO 3 ---
-            const categoriasFijas = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
-            let setVendedores = new Set();
-            let mapeoDinamicoTop3 = {}; 
-
-            data_filtrada.forEach(d => {
-                let qty = parseFloat(d.Cantidad) || 0;
-                let inc = parseFloat(d.Ingreso) || 0;
-                let origStr = String(d.origen || "").toUpperCase();
-                let catNorm = String(d.Categoria || "").toUpperCase().trim();
-                let vName = String(d.Vendedor || "Sin Asesor").trim();
-
-                v_neto_mes += inc; v_vol_mes += qty;
-
-                if (origStr.includes("FACTURACION") || origStr.includes("SISLOG")) { fact_monto += inc; fact_und += qty; }
-                if (origStr.includes("PRESUPUETO") || origStr.includes("OFIPRO")) { pres_monto += inc; pres_und += qty; }
-
-                if (vName && catNorm && categoriasFijas.includes(catNorm)) {
-                    setVendedores.add(vName);
-                    if (!mapeoDinamicoTop3[vName]) mapeoDinamicoTop3[vName] = {};
-                    mapeoDinamicoTop3[vName][catNorm] = (mapeoDinamicoTop3[vName][catNorm] || 0) + inc;
-                }
-
-                let c_name = d["Nombre Cliente"] || d.Nombre_Cliente || "Desconocido";
-                if (!resumen_clientes[c_name]) resumen_clientes[c_name] = { qty: 0, inc: 0 };
-                resumen_clientes[c_name].qty += qty; resumen_clientes[c_name].inc += inc;
-
-                if (d.Categoria) {
-                    if (!resumen_lineas[catNorm]) resumen_lineas[catNorm] = { qty: 0, inc: 0 };
-                    resumen_lineas[catNorm].qty += qty; resumen_lineas[catNorm].inc += inc;
-
-                    let prodClave = d.Producto || "S/P";
-                    if (!ranking_productos[catNorm]) ranking_productos[catNorm] = {};
-                    ranking_productos[catNorm][prodClave] = (ranking_productos[catNorm][prodClave] || 0) + qty;
-                }
-            });
-
-            document.getElementById("kpi-neto-mes").innerText = `$${v_neto_mes.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-volumen-mes").innerText = `Total Juegos: ${v_vol_mes.toLocaleString('es-ES')}`;
-            document.getElementById("kpi-monto-fact").innerText = `$${fact_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-und-fact").innerText = `Volumen Total: ${fact_und.toLocaleString('es-ES')} Jgos`;
-            document.getElementById("kpi-monto-pres").innerText = `$${pres_monto.toLocaleString('es-ES', {minimumFractionDigits:0})}`;
-            document.getElementById("kpi-und-pres").innerText = `Volumen Total: ${pres_und.toLocaleString('es-ES')} Jgos`;
-            //
-            //
-            // ==============================================================================
-            // 🧮 ALGORITMO MAESTRO DE AGREGACIÓN POR GRUPO DE CLIENTE DINÁMICO 🧮
-            // ==============================================================================
-            let resumen_grupos_kpi = {};
-
-            // 1. Recorremos la matriz de datos ya filtrada para agrupar montos y juegos por cada grupo activo
-            data_filtrada.forEach(d => {
-                let qty = parseFloat(d.Cantidad) || 0;
-                let inc = parseFloat(d.Ingreso) || 0;
-                let gName = String(d.Grupo_Cliente || d.Grupo_Cliente || "Otros").trim();
-
-                if (!resumen_grupos_kpi[gName]) {
-                    resumen_grupos_kpi[gName] = { monto: 0, unidades: 0 };
-                }
-                resumen_grupos_kpi[gName].monto += inc;
-                resumen_grupos_kpi[gName].unidades += qty;
-            });
-
-            // 2. Sincronizamos la etiqueta del mes en el título de la Tarjeta 4 para mantener el Theme minimalista
-            const elTagGrupoMes = document.getElementById("tag-mes-grupo");
-            if (elTagGrupoMes) {
-                if (m_sel === "TODOS") {
-                    elTagGrupoMes.innerText = "• Todos"; elTagGrupoMes.style.color = "#94A3B8";
-                } else {
-                    const dicMeses = {"26-01":"• Ene","26-02":"• Feb","26-03":"• Mar","26-04":"• Abr","26-05":"• May","26-06":"• Jun","26-07":"• Jul","26-08":"• Ago","26-09":"• Sep","26-10":"• Oct","26-11":"• Nov","26-12":"• Dic"};
-                    elTagGrupoMes.innerText = dicMeses[m_sel] || "• " + m_sel;
-                    elTagGrupoMes.style.color = "#0052FF"; // Combinación Azul Eléctrico para el foco activo
-                }
-            }
-
-            // 3. Inyectamos de forma elástica y dinámica los micro-carriles en el contenedor HTML
-            const contenedorGruposHTML = document.getElementById("contenedor-dinamico-grupos");
-            contenedorGruposHTML.innerHTML = ""; // Limpiamos residuos anteriores
-
-            // Ordenamos los grupos de mayor a menor facturación para impacto ejecutivo
-            let gruposOrdenados = Object.keys(resumen_grupos_kpi).sort((a, b) => resumen_grupos_kpi[b].monto - resumen_grupos_kpi[a].monto);
-
-            if (gruposOrdenados.length === 0) {
-                contenedorGruposHTML.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px;">Sin registros para este filtro</div>`;
-            }
-
-            gruposOrdenados.forEach(grupo => {
-                let mnt = resumen_grupos_kpi[grupo].monto;
-                let und = resumen_grupos_kpi[grupo].unidades;
-
-                // Construimos el micro-carril adaptando clases del Theme minimalista
-                let splitRowHTML = `
-                    <div class="kpi-split-row">
-                        <span class="split-label" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${grupo}:</span>
-                        <div class="split-val-box">
-                            <div class="split-monto" style="color: var(--azul-electrico); font-size: 15px;">$${mnt.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
-                            <div class="split-und">Total: ${und.toLocaleString('es-ES')} Jgos</div>
-                        </div>
-                    </div>`;
-                
-                contenedorGruposHTML.innerHTML += splitRowHTML;
-            });
-
-            //
-            //
-
-            const tBodyC = document.getElementById("tabla-clientes-body"); tBodyC.innerHTML = "";
-            Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => {
-                tBodyC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`;
-            });
-
-            const tBodyL = document.getElementById("tabla-lineas-body"); tBodyL.innerHTML = "";
-            Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc).forEach(l => {
-                let prom = resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0;
-                tBodyL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${prom.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
-            });
-
-            const tBodyTop6 = document.getElementById("tabla-top6-body"); tBodyTop6.innerHTML = "";
-            categoriasFijas.forEach(cat => {
-                let proModelLeader = "S/P"; let maxQtyLeader = 0;
-                if (ranking_productos[cat]) {
-                    Object.keys(ranking_productos[cat]).forEach(p => {
-                        if (ranking_productos[cat][p] > maxQtyLeader) { maxQtyLeader = ranking_productos[cat][p]; proModelLeader = p; }
-                    });
-                }
-                tBodyTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
-            });
-
-            // ==============================================================================
-            // 🏷️ COMPONENTE DINÁMICO DE CORRECCIÓN DE ETIQUETAS VISUALES (MAMUSA BI)
-            // ==============================================================================
-            const elTagKpi = document.getElementById("tag-mes-kpi");
-            const elTagGrafico = document.getElementById("tag-mes-grafico");
-
-            // Mapeo cronológico rápido para mostrar un nombre estético en vez del código crudo de red
-            const diccionarioMesesCortos = {
-                "26-01": "Enero", "26-02": "Febrero", "26-03": "Marzo", "26-04": "Abril",
-                "26-05": "Mayo", "26-06": "Junio", "26-07": "Julio", "26-08": "Agosto",
-                "26-09": "Septiembre", "26-10": "Octubre", "26-11": "Noviembre", "26-12": "Diciembre"
-            };
-
-            if (m_sel === "TODOS") {
-                // Si el selector está en TODOS, aplicamos formato gris ejecutivo suave
-                const textoTodos = "• Todos los Meses";
-                if(elTagKpi) { elTagKpi.innerText = textoTodos; elTagKpi.style.color = "#94A3B8"; }
-                if(elTagGrafico) { elTagGrafico.innerText = textoTodos; elTagGrafico.style.color = "#94A3B8"; }
-            } else {
-                // Si hay un mes seleccionado, traducimos el código y lo encendemos en Verde Menta Activo
-                const mesTraducido = "• " + (diccionarioMesesCortos[m_sel] || m_sel);
-                if(elTagKpi) { elTagKpi.innerText = mesTraducido; elTagKpi.style.color = "#2ECC71"; }
-                if(elTagGrafico) { elTagGrafico.innerText = mesTraducido; elTagGrafico.style.color = "#2ECC71"; }
-            }            
-
-            if (instGrafico1) { instGrafico1.destroy(); }
-            instGrafico1 = new Chart(document.getElementById('graficoNetoSimple').getContext('2d'), {
-                type: 'bar',
-                data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ label: 'Ingreso Neto por Mes (\$)', data: datos_grafico1, backgroundColor: '#0052FF', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-            });
-
-            if (instGrafico2) { instGrafico2.destroy(); }
-            instGrafico2 = new Chart(document.getElementById('graficoBarrasParalelas').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: LISTA_MESES_CONSTANTE,
-                    datasets: [
-                        { label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', borderRadius: 4 },
-                        { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', borderRadius: 4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94A3B8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-            });
-            // 📊 RENDERIZADO DEL GRÁFICO 3 (COMPUESTO MULTI-SERIES POR VENDEDOR REACTIVO - PERFECCIONADO) 📊
-            const paletaColoresThema = ['#0052FF', '#FF6B6B', '#9F7AEA', '#2ECC71', '#F59E0B'];
-            let listaDatasetsVendedores = [];
-            let colorIndex = 0;
-
-            setVendedores.forEach(vendedor => {
-                let dataMontosPorCategoria = categoriasFijas.map(cat => {
-                    return mapeoDinamicoTop3[vendedor] && mapeoDinamicoTop3[vendedor][cat] ? Math.round(mapeoDinamicoTop3[vendedor][cat]) : 0;
-                });
-
-                listaDatasetsVendedores.push({
-                    label: vendedor,
-                    data: dataMontosPorCategoria,
-                    backgroundColor: paletaColoresThema[colorIndex % paletaColoresThema.length],
-                    borderRadius: 4,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.1)'
-                });
-                colorIndex++;
-            });
-
-            if (instGrafico3) { instGrafico3.destroy(); }
-            instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: categoriasFijas, 
-                    datasets: listaDatasetsVendedores 
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12, font: { size: 11 } } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let vNameLabel = context.dataset.label;
-                                    let valMontoLabel = context.raw.toLocaleString('es-ES');
-                                    return vNameLabel + "; $" + valMontoLabel;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } },
-                        x: { grid: { display: false }, ticks: { color: '#E2E8F0', font: { weight: 'bold' } } }
-                    }
-                }
-            });
-        }
-
-        window.onload = conectarYDescargarBaseDatos;
-    </script>
-</body>
-</html>
