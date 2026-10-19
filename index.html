@@ -250,23 +250,45 @@
         document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
     }
 
-    function inicializarSegmentadoresFiltros() {
-        const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
-        const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
-        const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
-        const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-        const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
+   function inicializarSegmentadoresFiltros() {
+            // 1. Extraemos y ordenamos los catálogos únicos de la base de datos de internet
+            const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
+            const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
+            const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
+            const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
+            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
 
-        const sCia = document.getElementById("filtro-cia"); sCia.innerHTML = ""; cias.forEach(c => sCia.options.add(new Option(c, c)));
-        const sGrupo = document.getElementById("filtro-grupo"); sGrupo.innerHTML = ""; grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
-        const sMes = document.getElementById("filtro-mes"); sMes.innerHTML = ""; meses.forEach(m => sMes.options.add(new Option(m, m)));
-        const sOrig = document.getElementById("filtro-origen"); sOrig.innerHTML = ""; origenes.forEach(o => sOrig.options.add(new Option(o, o)));
-        const sVend = document.getElementById("filtro-vendedor"); sVend.innerHTML = ""; vendedores.forEach(v => sVend.options.add(new Option(v, v)));
+            // 2. Localizamos las cajas del panel izquierdo en el árbol del navegador
+            const sCia = document.getElementById("filtro-cia");
+            const sGrupo = document.getElementById("filtro-grupo");
+            const sMes = document.getElementById("filtro-mes");
+            const sOrig = document.getElementById("filtro-origen");
+            const sVend = document.getElementById("filtro-vendedor");
 
-        sCia.value = cias.includes("MULTIPLES") ? "MULTIPLES" : "TODOS";
-        sGrupo.value = grupos.includes("Distribuidores") ? "Distribuidores" : "TODOS";
-        if(meses.length > 0) sMes.value = meses[meses.length - 1];
-    }
+            // 3. Limpiamos cualquier residuo anterior para evitar duplicaciones en caliente
+            sCia.innerHTML = ""; sGrupo.innerHTML = ""; sMes.innerHTML = ""; sOrig.innerHTML = ""; sVend.innerHTML = "";
+
+            // 🌟 INYECCIÓN DE CONTROL MAESTRO SECCIONAL "TODOS" (RESTAURACIÓN DE VERSIÓN ANTERIOR) 🌟
+            sCia.options.add(new Option("-- Todas las Compañías --", "TODOS"));
+            sGrupo.options.add(new Option("-- Todos los Grupos --", "TODOS"));
+            sMes.options.add(new Option("-- Todos los Meses --", "TODOS"));
+            sOrig.options.add(new Option("-- Todos los Documentos --", "TODOS"));
+            sVend.options.add(new Option("-- Todos los Vendedores --", "TODOS"));
+
+            // 4. Inyectamos los catálogos dinámicos correspondientes
+            cias.forEach(c => sCia.options.add(new Option(c, c)));
+            grupos.forEach(g => sGrupo.options.add(new Option(g, g)));
+            meses.forEach(m => sMes.options.add(new Option(m, m)));
+            origenes.forEach(o => sOrig.options.add(new Option(o, o)));
+            vendedores.forEach(v => sVend.options.add(new Option(v, v)));
+
+            // 5. Aplicamos los Pre-Sets predeterminados respetando la existencia en la data
+            sCia.value = cias.includes("MULTIPLES") ? "MULTIPLES" : "TODOS";
+            sGrupo.value = grupos.includes("Distribuidores") ? "Distribuidores" : "TODOS";
+            if(meses.length > 0) sMes.value = meses[meses.length - 1];
+        }
+
+
     function procesarYFiltrarDashboard() {
         const c_sel = document.getElementById("filtro-cia").value;
         const g_sel = document.getElementById("filtro-grupo").value;
