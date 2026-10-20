@@ -197,40 +197,45 @@
     function evaluarEnterLogin(event) {
         if (event.key === "Enter") { ejecutarAutenticacionSegura(); }
     }
+    // ==============================================================================
+    // 📋 SECCIÓN 1: CONTROL DE ACCESO Y CONFIGURACIÓN DE CREDENCIALES
+    // ==============================================================================
+    // (Aquí reside la función ejecutarAutenticacionSegura y evaluarEnterLogin)
+     function ejecutarAutenticacionSegura() {
+        const userDigitado = document.getElementById("input-usuario").value.trim();
+        const passDigitado = document.getElementById("input-password").value;
+        const elError = document.getElementById("error-credenciales");
 
-        function ejecutarAutenticacionSegura() {
-            const userDigitado = document.getElementById("input-usuario").value.trim();
-            const passDigitado = document.getElementById("input-password").value;
-            const elError = document.getElementById("error-credenciales");
-
-            if (userDigitado === CREDENCIAL_USUARIO_VALIDO && passDigitado === CREDENCIAL_PASSWORD_VALIDO) {
-                // 🔐 INYECCIÓN DE CREDENCIALES ALMACENADAS DE FORMA SEGURA EN CLIENTE
-                // Tu ID verdadero viaja blindado aquí y nunca se sube a los archivos de GitHub
-                const SPREADSHEET_ID = "1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU";
+        if (userDigitado === CREDENCIAL_USUARIO_VALIDO && passDigitado === CREDENCIAL_PASSWORD_VALIDO) {
+            // 🔐 INYECCIÓN DE CREDENCIALES ALMACENADAS DE FORMA SEGURA EN CLIENTE
+            // Tu ID verdadero viaja blindado aquí y nunca se sube a los archivos de GitHub
+            const SPREADSHEET_ID = "1oaSlMKJsyo-6VfFtff1YM9yRsZb5QM6K24MFsUrMkpU";
                 
-                // Sobreescribimos en caliente las variables en la memoria RAM del navegador
-                //window.URL_LECTURA_NUBE = "https://google.com" + ID_VERDADERO + "/gviz/tq?tqx=out:json";
-                  window.URL_LECTURA_NUBE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;   
-
-
-                document.getElementById("pantalla-login").style.display = "none";
-                document.getElementById("interfaz-dashboard").style.display = "flex";
-                
-                // Disparamos la descarga ahora con la URL verdadera armada en caliente
-                conectarYDescargarBaseDatos();
-            } else {
-                elError.style.display = "block";
-                document.getElementById("input-password").value = "";
-                document.getElementById("input-password").focus();
-            }
+            // Sobreescribimos en caliente las variables en la memoria RAM del navegador
+            //window.URL_LECTURA_NUBE = "https://google.com" + ID_VERDADERO + "/gviz/tq?tqx=out:json";
+            window.URL_LECTURA_NUBE = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;   
+            document.getElementById("pantalla-login").style.display = "none";
+             document.getElementById("interfaz-dashboard").style.display = "flex";
+    
+            // Disparamos la descarga ahora con la URL verdadera armada en caliente
+            conectarYDescargarBaseDatos();
+        } else {
+            elError.style.display = "block";
+            document.getElementById("input-password").value = "";
+            document.getElementById("input-password").focus();
         }
+    }
     //
     let base_datos_global = [];
     let instGrafico1 = null; let instGrafico2 = null; let instGrafico3 = null;
 
     const LISTA_MESES_CONSTANTE = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     const LISTA_LLAVES_UNIX = ["26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08", "26-09", "26-10", "26-11", "26-12"];
-    //
+    
+    // ==============================================================================
+    // 📡 SECCIÓN 2: DESCARGA ASÍNCRONA DE LA NUBE (FETCH ENGINE)
+    // ==============================================================================
+    // (Aquí reside la función conectarYDescargarBaseDatos y ejecutarCalculoTituloDinamico)
     async function conectarYDescargarBaseDatos() {
             try {
                 // Leemos la URL real inyectada en RAM por el Login seguro
@@ -255,7 +260,7 @@
                 console.error("❌ Error de comunicación Cloud:", error);
             }
         }    
-    //
+    
     function ejecutarCalculoTituloDinamico() {
         let mapaCia = {};
         base_datos_global.forEach(d => { if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1; });
@@ -264,6 +269,10 @@
         document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
     }
 
+    // ==============================================================================
+    // 🎛️ SECCIÓN 3: INICIALIZADOR DE SEGMENTADORES (PRE-SETS)
+    // ==============================================================================
+    // (Aquí reside la función inicializarSegmentadoresFiltros con la opción "TODOS")
    function inicializarSegmentadoresFiltros() {
             // 1. Extraemos y ordenamos los catálogos únicos de la base de datos de internet
             const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
@@ -302,7 +311,10 @@
             if(meses.length > 0) sMes.value = meses[meses.length - 1];
         }
 
-
+    // ==============================================================================
+    // 🧮 SECCIÓN 4: ALGORITMO MAESTRO DE AGREGACIÓN Y PROCESAMIENTO COMERCIAL
+    // ==============================================================================
+    // (Aquí reside la lógica que recorre los datos, calcula KPIs y llena las tablas dinámicas)
     function procesarYFiltrarDashboard() {
         const c_sel = document.getElementById("filtro-cia").value;
         const g_sel = document.getElementById("filtro-grupo").value;
@@ -340,6 +352,7 @@
 
         let v_neto_mes = 0; let v_vol_mes = 0; let fact_monto = 0; let fact_und = 0; let pres_monto = 0; let pres_und = 0;
         let resumen_clientes = {}; let resumen_lineas = {}; let ranking_productos = {}; let resumen_grupos_kpi = {};
+
         const categoriasFijas = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
         let setVendedores = new Set(); let mapeoDinamicoTop3 = {};
 
@@ -393,8 +406,34 @@
 
         const tC = document.getElementById("tabla-clientes-body"); tC.innerHTML = ""; Object.keys(resumen_clientes).sort((a,b) => resumen_clientes[b].inc - resumen_clientes[a].inc).slice(0, 10).forEach(c => { tC.innerHTML += `<tr><td>${c}</td><td class="monto-num">${resumen_clientes[c].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_clientes[c].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td></tr>`; });
         const tL = document.getElementById("tabla-lineas-body"); tL.innerHTML = ""; Object.keys(resumen_lineas).sort((a,b) => resumen_lineas[b].inc - resumen_lineas[a].inc).forEach(l => { tL.innerHTML += `<tr><td><strong>${l}</strong></td><td class="monto-num">${resumen_lineas[l].qty.toLocaleString('es-ES')}</td><td class="monto-num">$${resumen_lineas[l].inc.toLocaleString('es-ES',{maximumFractionDigits:0})}</td><td class="monto-num">${(resumen_lineas[l].qty > 0 ? (resumen_lineas[l].inc / resumen_lineas[l].qty) : 0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`; });
-        const tT = document.getElementById("tabla-top6-body"); tT.innerHTML = ""; categoriasFijas.forEach(cat => { let pL = "S/P"; let mL = 0; if (ranking_productos[cat]) { Object.keys(ranking_productos[cat]).forEach(p => { if (ranking_productos[cat][p] > mL) { mL = ranking_productos[cat][p]; pL = p; } }); } tT.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${pL}</td><td class="monto-num font-weight-bold">${mL.toLocaleString('es-ES')}</td></tr>`; });
+        
+        //const tT = document.getElementById("tabla-top6-body"); tT.innerHTML = ""; categoriasFijas.forEach(cat => { let pL = "S/P"; let mL = 0; if (ranking_productos[cat]) { Object.keys(ranking_productos[cat]).forEach(p => { if (ranking_productos[cat][p] > mL) { mL = ranking_productos[cat][p]; pL = p; } }); } tT.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${pL}</td><td class="monto-num font-weight-bold">${mL.toLocaleString('es-ES')}</td></tr>`; });
 
+        // --- ACTUALIZACIÓN DE LA TABLA: TOP 6 PRODUCTOS MÁS VENDIDOS ---
+            const tBTop6 = document.getElementById("tabla-top6-body"); 
+            if (tBTop6) {
+                tBTop6.innerHTML = ""; 
+                const catFijasMamusa = ["PASTILLAS", "BANDAS", "BLOQUES", "ROLLOS", "LIGA", "REFRIGERANTES"];
+                
+                catFijasMamusa.forEach(cat => {
+                    let proModelLeader = "S/P"; 
+                    let maxQtyLeader = 0; 
+                    if (ranking_productos[cat]) {
+                        Object.keys(ranking_productos[cat]).forEach(p => { 
+                            if (ranking_productos[cat][p] > maxQtyLeader) { 
+                                maxQtyLeader = ranking_productos[cat][p]; 
+                                proModelLeader = p; 
+                            } 
+                        });
+                    }
+                    tBTop6.innerHTML += `<tr><td><span class="badge-cat">${cat}</span></td><td>${proModelLeader}</td><td class="monto-num font-weight-bold">${maxQtyLeader.toLocaleString('es-ES')}</td></tr>`;
+                });
+            }
+
+        // ==============================================================================
+        // 📊 SECCIÓN 5: INSTANCIACIÓN Y RENDERIZADO DE GRÁFICOS (CHART.JS LOCAL)
+        // ==============================================================================
+        // (Aquí reside la configuración de colores y dibujo de los Gráficos 1, 2 y 3)
         if (instGrafico1) instGrafico1.destroy(); instGrafico1 = new Chart(document.getElementById('graficoNetoSimple').getContext('2d'), { type: 'bar', data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ data: datos_grafico1, backgroundColor: '#0052FF', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } } });
         if (instGrafico2) instGrafico2.destroy(); instGrafico2 = new Chart(document.getElementById('graficoBarrasParalelas').getContext('2d'), { type: 'bar', data: { labels: LISTA_MESES_CONSTANTE, datasets: [{ label: 'Facturación (FA)', data: general_FA, backgroundColor: '#2ECC71', borderRadius: 4 }, { label: 'Presupuesto (PR)', data: general_PR, backgroundColor: '#E2E8F0', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94A3B8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } } });
         
