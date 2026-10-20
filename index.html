@@ -237,6 +237,9 @@
     // ==============================================================================
     // (Aquí reside la función conectarYDescargarBaseDatos y ejecutarCalculoTituloDinamico)
     async function conectarYDescargarBaseDatos() {
+            // 🛡️ COMPUERTA DE SEGURIDAD: Aborta la conexión si el usuario no ha pasado el login
+            if (!window.URL_LECTURA_NUBE || window.URL_LECTURA_NUBE.includes("error_acceso")) return;        
+            
             try {
                 // Leemos la URL real inyectada en RAM por el Login seguro
                 const urlDestino = window.URL_LECTURA_NUBE || URL_LECTURA_NUBE;
