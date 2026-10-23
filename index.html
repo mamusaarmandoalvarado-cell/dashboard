@@ -211,29 +211,35 @@ document.addEventListener("DOMContentLoaded", function() {
     formulario.addEventListener('submit', async function(e) {
         e.preventDefault();
         console.log("🚀 Evento Submit capturado con éxito. Conectando al backend local...");
-        
-        const usernameInput = document.getElementById('username').value.trim();
-        const passwordInput = document.getElementById('password').value;
+        // Aseguramos la extracción directa de los valores de las cajas de texto
+        const txtUsuario = document.getElementById('username');
+        const txtPassword = document.getElementById('password');
+
+        if (!txtUsuario || !txtPassword) {
+            console.error("🛑 Error: No se encontraron los inputs 'username' o 'password' en el HTML.");
+            return;
+        }
+
+        const usernameInput = txtUsuario.value.trim();
+        const passwordInput = txtPassword.value;
+
         const errorMessage = document.getElementById('errorMessage');
-        
-        // 🚀 CORREGIDO: Selector seguro por tag y clase para evitar el error de 'null'
         const submitButton = e.target.querySelector('button.login-btn') || e.target.querySelector('button');
 
         if (submitButton) {
             submitButton.disabled = true;
             submitButton.innerText = "Autenticando...";
         }
-        
-        if (errorMessage) {
-            errorMessage.style.display = "none";
-        }
+        if (errorMessage) errorMessage.style.display = "none";
 
+        // Estructura oficial OAuth2 requerida por FastAPI
         const formData = new URLSearchParams();
-        formData.append('username', usernameInput);
+        formData.append('username', usernameInput); // ⚠️ Debe ser idéntico al esquema esperado
         formData.append('password', passwordInput);
 
         try {
-            // Petición directa al contenedor Docker local en puerto 8085
+            console.log(`Enviando credenciales -> Usuario: [${usernameInput}]`);
+
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
                 headers: {
@@ -242,26 +248,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: formData
             });
 
+            // Si la respuesta da error 422, capturamos el JSON detallado para saber qué campo falló
+            if (response.status === 422) {
+                const errorDetallado = await response.json();
+                console.error("❌ FastAPI 422 Detalle del error:", errorDetallado);
+                throw new Error("Estructura de datos incorrecta (Error 422). Revisa la consola.");
+            }
+
             const data = await response.json();
 
             if (response.ok && data.access_token) {
-                console.log("✅ Autenticación exitosa. Guardando sesión en local...");
+                console.log("✅ Autenticación exitosa en MAMUSA BI.");
                 localStorage.setItem('mamusa_access_token', data.access_token);
                 localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
-                
-                // Redirección inmediata al panel de control de las filiales
                 window.location.href = "dashboard.html"; 
             } else {
-                // Captura el mensaje detallado configurado en FastAPI
                 throw new Error(data.detail || "Usuario o Contraseña Incorrectos");
             }
 
         } catch (error) {
             console.error("🛑 Error detectado:", error);
             if (errorMessage) {
-                errorMessage.innerText = error.message.includes("Failed to fetch") 
-                    ? "❌ Error de Red: El motor de la API local (Puerto 8085) está desconectado." 
-                    : `❌ ${error.message}`;
+                errorMessage.innerText = error.message;
                 errorMessage.style.display = "block";
             }
         } finally {
@@ -270,6 +278,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 submitButton.innerText = "Acceder al Sistema";
             }
         }
+
+        
     });
 });
 
