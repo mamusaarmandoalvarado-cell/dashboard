@@ -127,32 +127,34 @@
 </head>
 <body>
 
-    <!-- 🔒 CONTROL DE ACCESO SEGURO BLOQUEANTE -->
-    <form id="loginForm">
+<!-- 🔒 CONTROL DE ACCESO SEGURO BLOQUEANTE -->
+<form id="loginForm">
     <div class="login-overlay" id="pantalla-login">
-
-        <!-- El id DEBE ser exactamente loginForm -->
         
         <div class="login-box">
-            <h2>MAMUSA <span>• BI Engine</span></h2>
+            <h2>MAMUSA <span>BI Engine</span></h2>
             <p style="color: var(--texto-secundario); font-size: 13px;">Introduzca las credenciales autorizadas para acceder a los estados financieros consolidados.</p>
             
-            <div class="login-error" id="errorMessage">❌ Usuario o Contraseña Incorrectos</div>
+            <!-- ⚠️ Nota: Se le añade style="display: none;" para que empiece limpio -->
+            <div class="login-error" id="errorMessage" style="display: none;">❌ Usuario o Contraseña Incorrectos</div>
             
             <div class="login-group">
                 <label>Usuario Corporativo</label>
                 <input type="text" class="login-input" id="username" placeholder="ej: gerencia_bi" autocomplete="off">
             </div>
+            
             <div class="login-group">
                 <label>Contraseña de Seguridad</label>
-                <input type="password" class="login-input" id="password" placeholder="••••••••">   <!--onkeypress="evaluarEnterLogin(event)"-->
+                <input type="password" class="login-input" id="password" placeholder="••••••••">
             </div>
             
-            <button class="login-btn" >Acceder al Sistema</button>
+            <!-- 🚀 CORREGIDO: Se añade de forma explícita el type="submit" -->
+            <button type="submit" class="login-btn">Acceder al Sistema</button>
         </div>
+
     </div>
-    </form>
-    
+</form>
+  
     <!-- 🖥️ ESTRUCTURA VISUAL GENERAL DEL DASHBOARD PREMIUM -->
     <div class="app-wrapper" id="interfaz-dashboard">
         <header>
@@ -193,10 +195,12 @@
     <!-- Sincronización del archivo maestro externo -->
     <script src="config.js"></script>
     <script>
-    // ==============================================================================
-    // 🔑 CONTROLADOR MAESTRO DE ACCESO Y AUTENTICACIÓN (ANTI-COMPETENCIA)
-    // ==============================================================================
-    document.addEventListener("DOMContentLoaded", function() {
+
+
+// ================================================================================
+// 🔑 CONTROLADOR MAESTRO DE ACCESO Y AUTENTICACIÓN (ANTI-COMPETENCIA)
+// ================================================================================
+document.addEventListener("DOMContentLoaded", function() {
     const formulario = document.getElementById('loginForm');
     
     if (!formulario) {
@@ -211,19 +215,25 @@
         const usernameInput = document.getElementById('username').value.trim();
         const passwordInput = document.getElementById('password').value;
         const errorMessage = document.getElementById('errorMessage');
-        const submitButton = e.target.querySelector('button[type="submit"]');
+        
+        // 🚀 CORREGIDO: Selector seguro por tag y clase para evitar el error de 'null'
+        const submitButton = e.target.querySelector('button.login-btn') || e.target.querySelector('button');
 
-        // Protección anti-doble envío
-        submitButton.disabled = true;
-        submitButton.innerText = "Autenticando...";
-        if (errorMessage) errorMessage.style.display = "none";
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerText = "Autenticando...";
+        }
+        
+        if (errorMessage) {
+            errorMessage.style.display = "none";
+        }
 
         const formData = new URLSearchParams();
         formData.append('username', usernameInput);
         formData.append('password', passwordInput);
 
         try {
-            // Petición directa al contenedor Docker local
+            // Petición directa al contenedor Docker local en puerto 8085
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
                 headers: {
@@ -239,28 +249,29 @@
                 localStorage.setItem('mamusa_access_token', data.access_token);
                 localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
                 
-                // Redirección al Dashboard de las filiales
+                // Redirección inmediata al panel de control de las filiales
                 window.location.href = "dashboard.html"; 
             } else {
-                throw new Error(data.detail || "Credenciales inválidas corporativas.");
+                // Captura el mensaje detallado configurado en FastAPI
+                throw new Error(data.detail || "Usuario o Contraseña Incorrectos");
             }
 
         } catch (error) {
             console.error("🛑 Error detectado:", error);
             if (errorMessage) {
                 errorMessage.innerText = error.message.includes("Failed to fetch") 
-                    ? "❌ Error de Red: El motor de la API local (Puerto 8085) no responde." 
+                    ? "❌ Error de Red: El motor de la API local (Puerto 8085) está desconectado." 
                     : `❌ ${error.message}`;
                 errorMessage.style.display = "block";
             }
         } finally {
-            submitButton.disabled = false;
-            submitButton.innerText = "Acceder al Sistema";
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerText = "Acceder al Sistema";
+            }
         }
     });
 });
-
-
 
     //
     //function evaluarEnterLogin(event) {
