@@ -133,15 +133,15 @@
             <h2>MAMUSA <span>• BI Engine</span></h2>
             <p style="color: var(--texto-secundario); font-size: 13px;">Introduzca las credenciales autorizadas para acceder a los estados financieros consolidados.</p>
             
-            <div class="login-error" id="error-credenciales">❌ Usuario o Contraseña Incorrectos</div>
+            <div class="login-error" id="errorMessage">❌ Usuario o Contraseña Incorrectos</div>
             
             <div class="login-group">
                 <label>Usuario Corporativo</label>
-                <input type="text" class="login-input" id="input-usuario" placeholder="ej: gerencia_bi" autocomplete="off">
+                <input type="text" class="login-input" id="username" placeholder="ej: gerencia_bi" autocomplete="off">
             </div>
             <div class="login-group">
                 <label>Contraseña de Seguridad</label>
-                <input type="password" class="login-input" id="input-password" placeholder="••••••••" onkeypress="evaluarEnterLogin(event)">
+                <input type="password" class="login-input" id="password" placeholder="••••••••" onkeypress="evaluarEnterLogin(event)">
             </div>
             
             <button class="login-btn" onclick="ejecutarAutenticacionSegura()">Acceder al Sistema</button>
@@ -191,16 +191,76 @@
     // ==============================================================================
     // 🔑 CONTROLADOR MAESTRO DE ACCESO Y AUTENTICACIÓN (ANTI-COMPETENCIA)
     // ==============================================================================
-    const CREDENCIAL_USUARIO_VALIDO = "mamusa_gerencia";
-    const CREDENCIAL_PASSWORD_VALIDO = "MAMUSA2026*";
+    //const CREDENCIAL_USUARIO_VALIDO = "mamusa_gerencia";
+    //const CREDENCIAL_PASSWORD_VALIDO = "MAMUSA2026*";
 
-    function evaluarEnterLogin(event) {
-        if (event.key === "Enter") { ejecutarAutenticacionSegura(); }
+    //
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const usernameInput = document.getElementById('username').value.trim();
+    const passwordInput = document.getElementById('password').value;
+    const errorMessage = document.getElementById('errorMessage'); // Asegúrate de tener un contenedor de texto para errores
+    const submitButton = e.target.querySelector('button[type="submit"]');
+
+    // Deshabilitar botón para evitar múltiples clics (Double-Submit Protection)
+    submitButton.disabled = true;
+    submitButton.innerText = "Autenticando...";
+    if (errorMessage) errorMessage.innerText = "";
+
+    // Configurar la carga útil según los estándares de OAuth2 de FastAPI (Form Data)
+    const formData = new URLSearchParams();
+    formData.append('username', usernameInput);
+    formData.append('password', passwordInput);
+
+    try {
+        const response = await fetch("http://localhost:8085/api/v1/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.access_token) {
+            // Guardar el Token JWT de manera segura en el ciclo de sesión del navegador
+            localStorage.setItem('mamusa_access_token', data.access_token);
+            localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
+            
+            // Redirección inmediata al panel BI
+            window.location.href = "dashboard.html"; 
+        } else {
+            // Manejar errores de autenticación provenientes de FastAPI (401 / 400)
+            throw new Error(data.detail || "Credenciales inválidas. Acceso denegado.");
+        }
+
+    } catch (error) {
+        console.error("Error en flujo de autenticación:", error);
+        if (errorMessage) {
+            errorMessage.innerText = error.message.includes("Failed to fetch") 
+                ? "Error de conexión: El servidor central de MAMUSA no responde." 
+                : error.message;
+        } else {
+            alert(error.message);
+        }
+    } finally {
+        // Restaurar estado del botón
+        submitButton.disabled = false;
+        submitButton.innerText = "Acceder al Motor";
     }
+});
+
+    //
+    //function evaluarEnterLogin(event) {
+    //    if (event.key === "Enter") { ejecutarAutenticacionSegura(); }
+   // }
     // ==============================================================================
     // 📋 SECCIÓN 1: CONTROL DE ACCESO Y CONFIGURACIÓN DE CREDENCIALES
     // ==============================================================================
     // (Aquí reside la función ejecutarAutenticacionSegura y evaluarEnterLogin)
+    /*
      function ejecutarAutenticacionSegura() {
         const userDigitado = document.getElementById("input-usuario").value.trim();
         const passDigitado = document.getElementById("input-password").value;
@@ -225,6 +285,7 @@
             document.getElementById("input-password").focus();
         }
     }
+        */
     //
     let base_datos_global = [];
     let instGrafico1 = null; let instGrafico2 = null; let instGrafico3 = null;
