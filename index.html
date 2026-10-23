@@ -128,7 +128,11 @@
 <body>
 
     <!-- 🔒 CONTROL DE ACCESO SEGURO BLOQUEANTE -->
+
     <div class="login-overlay" id="pantalla-login">
+
+        <!-- El id DEBE ser exactamente loginForm -->
+        <form id="loginForm">
         <div class="login-box">
             <h2>MAMUSA <span>• BI Engine</span></h2>
             <p style="color: var(--texto-secundario); font-size: 13px;">Introduzca las credenciales autorizadas para acceder a los estados financieros consolidados.</p>
@@ -144,8 +148,9 @@
                 <input type="password" class="login-input" id="password" placeholder="••••••••" onkeypress="evaluarEnterLogin(event)">
             </div>
             
-            <button class="login-btn" onclick="ejecutarAutenticacionSegura()">Acceder al Sistema</button>
+            <button class="login-btn" >Acceder al Sistema</button>
         </div>
+        </form>
     </div>
 
     <!-- 🖥️ ESTRUCTURA VISUAL GENERAL DEL DASHBOARD PREMIUM -->
@@ -195,62 +200,71 @@
     //const CREDENCIAL_PASSWORD_VALIDO = "MAMUSA2026*";
 
     //
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+    document.addEventListener("DOMContentLoaded", function() {
+    const formulario = document.getElementById('loginForm');
     
-    const usernameInput = document.getElementById('username').value.trim();
-    const passwordInput = document.getElementById('password').value;
-    const errorMessage = document.getElementById('errorMessage'); // Asegúrate de tener un contenedor de texto para errores
-    const submitButton = e.target.querySelector('button[type="submit"]');
-
-    // Deshabilitar botón para evitar múltiples clics (Double-Submit Protection)
-    submitButton.disabled = true;
-    submitButton.innerText = "Autenticando...";
-    if (errorMessage) errorMessage.innerText = "";
-
-    // Configurar la carga útil según los estándares de OAuth2 de FastAPI (Form Data)
-    const formData = new URLSearchParams();
-    formData.append('username', usernameInput);
-    formData.append('password', passwordInput);
-
-    try {
-        const response = await fetch("http://localhost:8085/api/v1/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.access_token) {
-            // Guardar el Token JWT de manera segura en el ciclo de sesión del navegador
-            localStorage.setItem('mamusa_access_token', data.access_token);
-            localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
-            
-            // Redirección inmediata al panel BI
-            window.location.href = "dashboard.html"; 
-        } else {
-            // Manejar errores de autenticación provenientes de FastAPI (401 / 400)
-            throw new Error(data.detail || "Credenciales inválidas. Acceso denegado.");
-        }
-
-    } catch (error) {
-        console.error("Error en flujo de autenticación:", error);
-        if (errorMessage) {
-            errorMessage.innerText = error.message.includes("Failed to fetch") 
-                ? "Error de conexión: El servidor central de MAMUSA no responde." 
-                : error.message;
-        } else {
-            alert(error.message);
-        }
-    } finally {
-        // Restaurar estado del botón
-        submitButton.disabled = false;
-        submitButton.innerText = "Acceder al Motor";
+    if (!formulario) {
+        console.error("🛑 Error: No se encontró ningún formulario con id='loginForm'");
+        return;
     }
+
+    formulario.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log("🚀 Evento Submit capturado con éxito. Conectando al backend local...");
+        
+        const usernameInput = document.getElementById('username').value.trim();
+        const passwordInput = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+        const submitButton = e.target.querySelector('button[type="submit"]');
+
+        // Protección anti-doble envío
+        submitButton.disabled = true;
+        submitButton.innerText = "Autenticando...";
+        if (errorMessage) errorMessage.style.display = "none";
+
+        const formData = new URLSearchParams();
+        formData.append('username', usernameInput);
+        formData.append('password', passwordInput);
+
+        try {
+            // Petición directa al contenedor Docker local
+            const response = await fetch("http://localhost:8085/api/v1/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.access_token) {
+                console.log("✅ Autenticación exitosa. Guardando sesión en local...");
+                localStorage.setItem('mamusa_access_token', data.access_token);
+                localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
+                
+                // Redirección al Dashboard de las filiales
+                window.location.href = "dashboard.html"; 
+            } else {
+                throw new Error(data.detail || "Credenciales inválidas corporativas.");
+            }
+
+        } catch (error) {
+            console.error("🛑 Error detectado:", error);
+            if (errorMessage) {
+                errorMessage.innerText = error.message.includes("Failed to fetch") 
+                    ? "❌ Error de Red: El motor de la API local (Puerto 8085) no responde." 
+                    : `❌ ${error.message}`;
+                errorMessage.style.display = "block";
+            }
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerText = "Acceder al Sistema";
+        }
+    });
 });
+
+
 
     //
     //function evaluarEnterLogin(event) {
