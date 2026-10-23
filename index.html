@@ -128,11 +128,11 @@
 <body>
 
     <!-- 🔒 CONTROL DE ACCESO SEGURO BLOQUEANTE -->
-
+    <form id="loginForm">
     <div class="login-overlay" id="pantalla-login">
 
         <!-- El id DEBE ser exactamente loginForm -->
-        <form id="loginForm">
+        
         <div class="login-box">
             <h2>MAMUSA <span>• BI Engine</span></h2>
             <p style="color: var(--texto-secundario); font-size: 13px;">Introduzca las credenciales autorizadas para acceder a los estados financieros consolidados.</p>
@@ -145,14 +145,14 @@
             </div>
             <div class="login-group">
                 <label>Contraseña de Seguridad</label>
-                <input type="password" class="login-input" id="password" placeholder="••••••••" onkeypress="evaluarEnterLogin(event)">
+                <input type="password" class="login-input" id="password" placeholder="••••••••">   <!--onkeypress="evaluarEnterLogin(event)"-->
             </div>
             
             <button class="login-btn" >Acceder al Sistema</button>
         </div>
-        </form>
     </div>
-
+    </form>
+    
     <!-- 🖥️ ESTRUCTURA VISUAL GENERAL DEL DASHBOARD PREMIUM -->
     <div class="app-wrapper" id="interfaz-dashboard">
         <header>
@@ -196,10 +196,6 @@
     // ==============================================================================
     // 🔑 CONTROLADOR MAESTRO DE ACCESO Y AUTENTICACIÓN (ANTI-COMPETENCIA)
     // ==============================================================================
-    //const CREDENCIAL_USUARIO_VALIDO = "mamusa_gerencia";
-    //const CREDENCIAL_PASSWORD_VALIDO = "MAMUSA2026*";
-
-    //
     document.addEventListener("DOMContentLoaded", function() {
     const formulario = document.getElementById('loginForm');
     
