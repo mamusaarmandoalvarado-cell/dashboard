@@ -233,12 +233,15 @@ document.addEventListener("DOMContentLoaded", function() {
         if (errorMessage) errorMessage.style.display = "none";
 
         // Estructura oficial OAuth2 requerida por FastAPI
+               // Estructura oficial requerida por tu esquema de base de datos en MAMUSA
         const formData = new URLSearchParams();
-        formData.append('username', usernameInput); // ⚠️ Debe ser idéntico al esquema esperado
+        
+        // 🚀 CAMBIO CRÍTICO: Cambiamos 'username' por 'email' para que coincida con tu modelo de la base de datos
+        formData.append('email', usernameInput); 
         formData.append('password', passwordInput);
 
         try {
-            console.log(`Enviando credenciales -> Usuario: [${usernameInput}]`);
+            console.log(`Conectando de forma segura para validar el correo: [${usernameInput}]`);
 
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
@@ -248,14 +251,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: formData
             });
 
-            // Si la respuesta da error 422, capturamos el JSON detallado para saber qué campo falló
+            // Si la respuesta da error 422, capturamos el JSON detallado en la consola
             if (response.status === 422) {
                 const errorDetallado = await response.json();
-                console.error("❌ FastAPI 422 Detalle del error:", errorDetallado);
-                throw new Error("Estructura de datos incorrecta (Error 422). Revisa la consola.");
+                console.error("❌ Detalle de validación del backend (422):", errorDetallado);
+                throw new Error("Error de coincidencia de campos (422). Revisa los logs de la consola.");
             }
 
             const data = await response.json();
+
 
             if (response.ok && data.access_token) {
                 console.log("✅ Autenticación exitosa en MAMUSA BI.");
