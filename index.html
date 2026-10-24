@@ -6,7 +6,7 @@
     <title>MAMUSA - Analítico Comercial Protegido 2026</title>
     <!-- Tipografía Ejecutiva y Soporte Gráfico Local -->
     <link href="https://googleapis.com" rel="stylesheet">
-    <script src="chart.js"></script>
+    <script src="chart.js?v=2"></script>
     <style>
         :root {
             --bg-principal: #0F172A; 
@@ -193,7 +193,7 @@
         </div>
     </div>
     <!-- Sincronización del archivo maestro externo -->
-    <script src="config.js"></script>
+    <script src="config.js?v=2"></script>
     <script>
 
 
@@ -233,38 +233,28 @@ document.addEventListener("DOMContentLoaded", function() {
         if (errorMessage) errorMessage.style.display = "none";
 
         // Estructura oficial OAuth2 requerida por FastAPI
-         // Estructura estrictamente requerida por OAuth2 de FastAPI
+                // Estructura oficial requerida por el estándar de autenticación de tu backend
         const formData = new URLSearchParams();
-        
-        // 🚀 LA CLAVE: FastAPI exige la palabra literal 'username' en el formulario, 
-        // pero aquí le pasamos el valor que el usuario ingresó (que tu base de datos validará contra el email).
-        formData.append('username', usernameInput); 
+        formData.append('username', usernameInput); // 👈 El backend exige la palabra 'username'
         formData.append('password', passwordInput);
-        // 🚀 CONVERSIÓN CORPORATIVA: Estructuramos los datos como un objeto JSON nativo
-        const datosLogin = {
-            email: usernameInput, // Validado contra la columna de tu base de datos
-            password: passwordInput
-        };
 
         try {
-            console.log("Iniciando transmisión segura JSON hacia el motor central MAMUSA...");
+            console.log("Iniciando transmisión unificada hacia el motor central MAMUSA (Puerto 8085)...");
 
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json", // 👈 Cambiado a JSON estándar empresarial
+                    "Content-Type": "application/x-www-form-urlencoded",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify(datosLogin) // 👈 Serializamos el objeto
+                body: formData
             });
 
-            // Capturamos el error 422 si la API requiere llaves con nombres diferentes
+            // Si el backend rechaza los campos por validación, capturamos el desglose exacto
             if (response.status === 422) {
                 const errorDetallado = await response.json();
-                console.error("❌ Estructura JSON rechazada por FastAPI (422):", errorDetallado);
-                
-                // Si el backend prefiere la palabra 'username' en el JSON, lo sabremos aquí
-                throw new Error(`Error 422 de campos. Revisar objeto en la consola.`);
+                console.error("❌ Estructura rechazada por FastAPI (422):", errorDetallado);
+                throw new Error("Campos inválidos en la petición (Error 422). Ver consola.");
             }
 
             const data = await response.json();
@@ -273,7 +263,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log("✅ Autenticación exitosa. Almacenando credenciales criptográficas...");
                 localStorage.setItem('mamusa_access_token', data.access_token);
                 localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
-                window.location.href = "dashboard.html"; 
+                
+                // 🚀 CORREGIDO: Cambiamos a 'index.html' o a la pantalla real de tu panel si vas a subirla
+                alert("¡Acceso concedido al Motor BI! Conexión establecida.");
+                // window.location.href = "dashboard_real.html"; // Descomenta e introduce el archivo correcto cuando lo subas
             } else {
                 throw new Error(data.detail || "Usuario o Contraseña Incorrectos");
             }
@@ -290,6 +283,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 submitButton.innerText = "Acceder al Sistema";
             }
         }
+
 
 
         
