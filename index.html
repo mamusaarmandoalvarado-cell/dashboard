@@ -240,37 +240,37 @@ document.addEventListener("DOMContentLoaded", function() {
         // pero aquí le pasamos el valor que el usuario ingresó (que tu base de datos validará contra el email).
         formData.append('username', usernameInput); 
         formData.append('password', passwordInput);
+        // 🚀 CONVERSIÓN CORPORATIVA: Estructuramos los datos como un objeto JSON nativo
+        const datosLogin = {
+            email: usernameInput, // Validado contra la columna de tu base de datos
+            password: passwordInput
+        };
 
-               try {
-            console.log("Conectando al motor central MAMUSA e iniciando verificación de credenciales...");
+        try {
+            console.log("Iniciando transmisión segura JSON hacia el motor central MAMUSA...");
 
-            // Intentamos el envío tal como lo tienes
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/json", // 👈 Cambiado a JSON estándar empresarial
+                    "Accept": "application/json"
                 },
-                body: formData
+                body: JSON.stringify(datosLogin) // 👈 Serializamos el objeto
             });
 
-            // 🚀 EXTRACCIÓN MAESTRA DEL ERROR 422: Esto nos dirá qué campo rechaza FastAPI
+            // Capturamos el error 422 si la API requiere llaves con nombres diferentes
             if (response.status === 422) {
-                const detalleValidacion = await response.json();
-                console.error("🛑 ERROR DETALLADO DE FASTAPI (422):", JSON.stringify(detalleValidacion, null, 2));
+                const errorDetallado = await response.json();
+                console.error("❌ Estructura JSON rechazada por FastAPI (422):", errorDetallado);
                 
-                // Extraemos el mensaje amigable de la estructura de FastAPI
-                let mensajeInterno = "Error de validación de datos en el servidor (422).";
-                if (detalleValidacion.detail && detalleValidacion.detail[0]) {
-                    const errorInfo = detalleValidacion.detail[0];
-                    mensajeInterno = `Campo [${errorInfo.loc.join('.')}] dice: ${errorInfo.msg}`;
-                }
-                throw new Error(mensajeInterno);
+                // Si el backend prefiere la palabra 'username' en el JSON, lo sabremos aquí
+                throw new Error(`Error 422 de campos. Revisar objeto en la consola.`);
             }
 
             const data = await response.json();
 
             if (response.ok && data.access_token) {
-                console.log("✅ Autenticación exitosa en MAMUSA BI.");
+                console.log("✅ Autenticación exitosa. Almacenando credenciales criptográficas...");
                 localStorage.setItem('mamusa_access_token', data.access_token);
                 localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
                 window.location.href = "dashboard.html"; 
@@ -278,14 +278,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 throw new Error(data.detail || "Usuario o Contraseña Incorrectos");
             }
 
-
         } catch (error) {
-            console.error("🛑 Error detectado:", error);
+            console.error("🛑 Excepción en pasarela de acceso:", error);
             if (errorMessage) {
-                errorMessage.innerText = error.message.includes("Failed to fetch") 
-                    ? "❌ Error de Red: No se pudo conectar con el servidor en el puerto 8085." 
-                    : `❌ ${error.message}`;
+                errorMessage.innerText = error.message;
                 errorMessage.style.display = "block";
+            }
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerText = "Acceder al Sistema";
             }
         }
 
