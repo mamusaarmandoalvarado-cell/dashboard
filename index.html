@@ -233,15 +233,16 @@ document.addEventListener("DOMContentLoaded", function() {
         if (errorMessage) errorMessage.style.display = "none";
 
         // Estructura oficial OAuth2 requerida por FastAPI
-               // Estructura oficial requerida por tu esquema de base de datos en MAMUSA
+         // Estructura estrictamente requerida por OAuth2 de FastAPI
         const formData = new URLSearchParams();
         
-        // 🚀 CAMBIO CRÍTICO: Cambiamos 'username' por 'email' para que coincida con tu modelo de la base de datos
-        formData.append('email', usernameInput); 
+        // 🚀 LA CLAVE: FastAPI exige la palabra literal 'username' en el formulario, 
+        // pero aquí le pasamos el valor que el usuario ingresó (que tu base de datos validará contra el email).
+        formData.append('username', usernameInput); 
         formData.append('password', passwordInput);
 
         try {
-            console.log(`Conectando de forma segura para validar el correo: [${usernameInput}]`);
+            console.log("Conectando al motor central MAMUSA e iniciando verificación de credenciales...");
 
             const response = await fetch("http://localhost:8085/api/v1/auth/login", {
                 method: "POST",
@@ -251,18 +252,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: formData
             });
 
-            // Si la respuesta da error 422, capturamos el JSON detallado en la consola
+            // Si hay un fallo de validación, inspeccionamos qué solicita el backend exactamente
             if (response.status === 422) {
                 const errorDetallado = await response.json();
                 console.error("❌ Detalle de validación del backend (422):", errorDetallado);
-                throw new Error("Error de coincidencia de campos (422). Revisa los logs de la consola.");
+                throw new Error("Error de validación en los campos del formulario. Revisa la consola.");
             }
 
             const data = await response.json();
 
-
             if (response.ok && data.access_token) {
-                console.log("✅ Autenticación exitosa en MAMUSA BI.");
+                console.log("✅ Autenticación exitosa. Guardando token de sesión...");
                 localStorage.setItem('mamusa_access_token', data.access_token);
                 localStorage.setItem('mamusa_token_type', data.token_type || 'Bearer');
                 window.location.href = "dashboard.html"; 
@@ -273,15 +273,13 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (error) {
             console.error("🛑 Error detectado:", error);
             if (errorMessage) {
-                errorMessage.innerText = error.message;
+                errorMessage.innerText = error.message.includes("Failed to fetch") 
+                    ? "❌ Error de Red: No se pudo conectar con el servidor en el puerto 8085." 
+                    : `❌ ${error.message}`;
                 errorMessage.style.display = "block";
             }
-        } finally {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.innerText = "Acceder al Sistema";
-            }
         }
+
 
         
     });
