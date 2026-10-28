@@ -235,7 +235,7 @@
                 let obj = {};
                 if (row && row.c) {
                     row.c.forEach((cell, index) => {
-                        let colName = columnas[index];
+                        let colName = columnas[index]  || `Col_${index}`;;
                         // Asegura que d.CIA, d.Grupo_Cliente, d.Mes, etc. existan sin colapsar por nulos
                         obj[colName] = (cell && cell.v !== undefined && cell.v !== null) ? cell.v : null;
                     });
