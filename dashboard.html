@@ -230,14 +230,16 @@
             //    return obj;
             //});
             
-            // Asegúrate de que el mapeo construya las propiedades tal como las consumen tus funciones:
-            base_datos_global = jsonLimpio.table.rows.map(row => {
+            // 🚀 CORREGIDO: Usamos exactamente 'base_data_global' con tu mapeo blindado de celdas
+            base_data_global = jsonLimpio.table.rows.map(row => {
                 let obj = {};
-                row.c.forEach((cell, index) => {
-                    let colName = columnas[index];
-                    // Esto asegura que d.CIA, d.Grupo_Cliente, d.Mes, etc. existan con sus valores
-                    obj[colName] = cell ? cell.v : null; 
-                });
+                if (row && row.c) {
+                    row.c.forEach((cell, index) => {
+                        let colName = columnas[index];
+                        // Asegura que d.CIA, d.Grupo_Cliente, d.Mes, etc. existan sin colapsar por nulos
+                        obj[colName] = (cell && cell.v !== undefined && cell.v !== null) ? cell.v : null;
+                    });
+                }
                 return obj;
             });
 
