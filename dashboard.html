@@ -217,17 +217,30 @@
             const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
             
             // 🛡️ CONSTRUCCIÓN BLINDADA CONTRA CELDAS NULAS/VACÍAS
-            base_data_global = jsonLimpio.table.rows.map(r => {
+            
+            //base_data_global = jsonLimpio.table.rows.map(r => {
+            //    let obj = {};
+            //    if (r && r.c) {
+            //        r.c.forEach((celda, index) => {
+            //            let colName = columnas[index] || `Col_${index}`;
+            //            // Si la celda existe y tiene la propiedad 'v', la guarda; si no, guarda un texto vacío
+            //            obj[colName] = (celda && celda.v !== undefined && celda.v !== null) ? celda.v : "";
+            //        });
+            //    }
+            //    return obj;
+            //});
+            
+            // Asegúrate de que el mapeo construya las propiedades tal como las consumen tus funciones:
+            base_datos_global = jsonLimpio.table.rows.map(row => {
                 let obj = {};
-                if (r && r.c) {
-                    r.c.forEach((celda, index) => {
-                        let colName = columnas[index] || `Col_${index}`;
-                        // Si la celda existe y tiene la propiedad 'v', la guarda; si no, guarda un texto vacío
-                        obj[colName] = (celda && celda.v !== undefined && celda.v !== null) ? celda.v : "";
-                    });
-                }
+                row.c.forEach((cell, index) => {
+                    let colName = columnas[index];
+                    // Esto asegura que d.CIA, d.Grupo_Cliente, d.Mes, etc. existan con sus valores
+                    obj[colName] = cell ? cell.v : null; 
+                });
                 return obj;
             });
+
 
             console.log("✅ Matriz de datos global estructurada con éxito en RAM sin errores de nulos.");
 
@@ -242,13 +255,10 @@
         } catch (error) {
             console.error("❌ Error crítico en el formateo analítico de la matriz BI:", error);
         }
-
-
-            //
+        //
         } catch (error) {
             console.error("🛑 Error en el flujo de datos del Dashboard:", error);
         }
-
     }    
     
     function ejecutarCalculoTituloDinamico() {
