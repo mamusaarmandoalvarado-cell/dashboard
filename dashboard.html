@@ -204,38 +204,45 @@
         console.log("📡 Conexión segura exitosa. Abstrayendo matriz de datos de la nube...");
 
         try {
-            // 🚀 EL ENGRAJE MAESTRO: Extraemos el string crudo oculto en la propiedad data_cruda
+            // 🚀 EXTRAEMOS EL STRING OCULTO EN LA PROPIEDAD DATA_CRUDA
             const textoraw = datosFinancieros.data_cruda; 
-            console.log( datosFinancieros.data_cruda);
+            console.log("📥 Procesando matriz cruda de 4.5MB...");
 
-            // Tu lógica original exacta de extracción que ya funcionaba a la perfección:
+            // Limpieza y parseo del string de visualización de Google
             const inicioJson = textoraw.indexOf('{');
             const finJson = textoraw.lastIndexOf('}') + 1;
             const jsonLimpio = JSON.parse(textoraw.substring(inicioJson, finJson));
 
-            // Extraemos las columnas analíticas de Google Sheets
+            // Extraemos las columnas analíticas limpias de espacios
             const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
             
-            // Construimos la base de datos global en la memoria RAM del cliente
+            // 🛡️ CONSTRUCCIÓN BLINDADA CONTRA CELDAS NULAS/VACÍAS
             base_data_global = jsonLimpio.table.rows.map(r => {
                 let obj = {};
-                r.c.forEach((celda, index) => {
-                    let colName = columnas[index] || `Col_${index}`;
-                    obj[colName] = celda ? celda.v : "";
-                });
+                if (r && r.c) {
+                    r.c.forEach((celda, index) => {
+                        let colName = columnas[index] || `Col_${index}`;
+                        // Si la celda existe y tiene la propiedad 'v', la guarda; si no, guarda un texto vacío
+                        obj[colName] = (celda && celda.v !== undefined && celda.v !== null) ? celda.v : "";
+                    });
+                }
                 return obj;
             });
 
-            console.log("✅ Matriz de datos global estructurada con éxito.");
+            console.log("✅ Matriz de datos global estructurada con éxito en RAM sin errores de nulos.");
 
-            // 📊 Disparadores nativos de MAMUSA para pintar la interfaz con la nueva base_data_global
+            // 📊 Disparadores nativos de MAMUSA para pintar la interfaz
             if (typeof ejecutarCalculoTituloDinamico === 'function') ejecutarCalculoTituloDinamico();
             if (typeof inicializarSegmentadoresFiltros === 'function') inicializarSegmentadoresFiltros();
-            if (typeof procesarYFiltrarDashboard === 'function') procesarYFiltrarDashboard();
+            if (typeof procesarYFiltrarDashboard === 'function') {
+                console.log("📈 Pintando gráficos de Chart.js y KPIs...");
+                procesarYFiltrarDashboard();
+            }
 
         } catch (error) {
-            console.error("❌ Error de procesamiento analítico en la Matriz BI:", error);
+            console.error("❌ Error crítico en el formateo analítico de la matriz BI:", error);
         }
+
 
             //
         } catch (error) {
