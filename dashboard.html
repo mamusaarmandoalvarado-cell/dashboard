@@ -190,8 +190,9 @@
         // Realizamos el fetch inyectando el escudo que armamos en el head
         const response = await fetch("http://localhost:8085/api/v1/sections/dashboard-consolidados", {
             method: "GET",
-            headers: window.obtenerCabecerasAutorizadasMAMUSA() // 👈 🔒 FUSIÓN DE SEGURIDAD
-        });
+            headers: window.obtenerCabecerasAutorizadasMAMUSA(),  // 👈 🔒 FUSIÓN DE SEGURIDAD
+        },
+    );
 
         // Control de expulsión si el token caducó en el backend (401/403)
         if (response.status === 401 || response.status === 403) {
@@ -203,11 +204,14 @@
         // 1. Extraemos el objeto JSON de respuesta segura enviado por tu FastAPI local
         const datosFinancieros = await response.json();
         console.log("📡 Conexión segura exitosa. Abstrayendo matriz de datos de la nube...");
+        
 
         try {
             // 🚀 EXTRAEMOS EL STRING OCULTO EN LA PROPIEDAD DATA_CRUDA
             const textoraw = datosFinancieros.data_cruda; 
             console.log("📥 Procesando matriz cruda de 4.5MB...");
+            
+            console.log(textoraw);
 
             // Limpieza y parseo del string de visualización de Google
             const inicioJson = textoraw.indexOf('{');
@@ -217,33 +221,18 @@
             // Extraemos las columnas analíticas limpias de espacios
             const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
             
-            // 🛡️ CONSTRUCCIÓN BLINDADA CONTRA CELDAS NULAS/VACÍAS
-            
-            //base_data_global = jsonLimpio.table.rows.map(r => {
-            //    let obj = {};
-            //    if (r && r.c) {
-            //        r.c.forEach((celda, index) => {
-            //            let colName = columnas[index] || `Col_${index}`;
-            //            // Si la celda existe y tiene la propiedad 'v', la guarda; si no, guarda un texto vacío
-            //            obj[colName] = (celda && celda.v !== undefined && celda.v !== null) ? celda.v : "";
-            //        });
-            //    }
-            //    return obj;
-            //});
-            
-            // 🚀 CORREGIDO: Usamos exactamente 'base_data_global' con tu mapeo blindado de celdas
-            base_data_global = jsonLimpio.table.rows.map(row => {
+            // 🛡️ CONSTRUCCIÓN BLINDADA CONTRA CELDAS NULAS/VACÍAS        
+            base_data_global = jsonLimpio.table.rows.map(r => {
                 let obj = {};
-                if (row && row.c) {
-                    row.c.forEach((cell, index) => {
-                        let colName = columnas[index]  || `Col_${index}`;;
-                        // Asegura que d.CIA, d.Grupo_Cliente, d.Mes, etc. existan sin colapsar por nulos
-                        obj[colName] = (cell && cell.v !== undefined && cell.v !== null) ? cell.v : null;
+                if (r && r.c) {
+                    r.c.forEach((celda, index) => {
+                        let colName = columnas[index] || `Col_${index}`;
+                        // Si la celda existe y tiene la propiedad 'v', la guarda; si no, guarda un texto vacío
+                        obj[colName] = (celda && celda.v !== undefined && celda.v !== null) ? celda.v : "";
                     });
                 }
                 return obj;
             });
-
 
             console.log("✅ Matriz de datos global estructurada con éxito en RAM sin errores de nulos.");
 
