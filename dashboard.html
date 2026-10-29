@@ -205,14 +205,13 @@
         const datosFinancieros = await response.json();
         console.log("📡 Conexión segura exitosa. Abstrayendo matriz de datos de la nube...");
         
+        console.log(datosFinancieros.data_cruda);
 
         try {
             // 🚀 EXTRAEMOS EL STRING OCULTO EN LA PROPIEDAD DATA_CRUDA
             const textoraw = datosFinancieros.data_cruda; 
             console.log("📥 Procesando matriz cruda de 4.5MB...");
-            
-            console.log(datosFinancieros.data_cruda);
-
+        
             // Limpieza y parseo del string de visualización de Google
             const inicioJson = textoraw.indexOf('{');
             const finJson = textoraw.lastIndexOf('}') + 1;
