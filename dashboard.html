@@ -263,11 +263,33 @@
     }    
     
     function ejecutarCalculoTituloDinamico() {
-        let mapaCia = {};
-        base_datos_global.forEach(d => { if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1; });
-        let compañiaMasFrecuente = "MAMUSA"; let maxConteo = 0;
-        Object.keys(mapaCia).forEach(c => { if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; } });
-        document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
+        //let mapaCia = {};
+        //base_datos_global.forEach(d => { if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1; });
+        //let compañiaMasFrecuente = "MAMUSA"; let maxConteo = 0;
+        //Object.keys(mapaCia).forEach(c => { if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; } });
+        //document.getElementById("titulo-dashboard").innerHTML = `Estadística de Ventas <span>• ${compañiaMasFrecuente}</span>`;
+        console.log(" ejecutarCalculoTituloDinamico() INICIADO");
+        try {
+            let mapaCia = {};
+            base_datos_global.forEach(d => { if(d.CIA) mapaCia[d.CIA] = (mapaCia[d.CIA] || 0) + 1; });
+            console.log("   - mapaCia construido:", Object.keys(mapaCia).length, "compañías");
+            
+            let compañiaMasFrecuente = "MAMUSA"; let maxConteo = 0;
+            Object.keys(mapaCia).forEach(c => { if(mapaCia[c] > maxConteo) { maxConteo = mapaCia[c]; compañiaMasFrecuente = c; } });
+            console.log("   - Compañía más frecuente:", compañiaMasFrecuente);
+            
+            const tituloElement = document.getElementById("titulo-dashboard");
+            console.log("   - Elemento titulo-dashboard:", tituloElement);
+            
+            if (tituloElement) {
+                tituloElement.innerHTML = `Estadística de Ventas <span> ${compañiaMasFrecuente}</span>`;
+                console.log("   ✅ Título actualizado");
+            } else {
+                console.error("   ❌ Elemento 'titulo-dashboard' NO EXISTE en el HTML");
+            }
+        } catch (error) {
+            console.error("   ❌ Error en ejecutarCalculoTituloDinamico:", error);
+        }        
     }
 
     // ==============================================================================
@@ -275,12 +297,15 @@
     // ==============================================================================
     // (Aquí reside la función inicializarSegmentadoresFiltros con la opción "TODOS")
    function inicializarSegmentadoresFiltros() {
+     console.log("🟢 inicializarSegmentadoresFiltros() INICIADO");
+        try {
             // 1. Extraemos y ordenamos los catálogos únicos de la base de datos de internet
             const cias = [...new Set(base_datos_global.map(d => d.CIA).filter(Boolean))].sort();
             const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
             const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
             const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort();
+            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort(
+            console.log("   - Cías:", cias.length, "Grupos:", grupos.length, "Meses:", meses.length);
 
             // 2. Localizamos las cajas del panel izquierdo en el árbol del navegador
             const sCia = document.getElementById("filtro-cia");
@@ -288,16 +313,24 @@
             const sMes = document.getElementById("filtro-mes");
             const sOrig = document.getElementById("filtro-origen");
             const sVend = document.getElementById("filtro-vendedor");
+            console.log("   - filtro-cia:", sCia);
+            console.log("   - filtro-grupo:", sGrupo);
+            console.log("   - filtro-mes:", sMes);
+            console.log("   - filtro-origen:", sOrig);
+            console.log("   - filtro-vendedor:", sVend);
 
             // 3. Limpiamos cualquier residuo anterior para evitar duplicaciones en caliente
             sCia.innerHTML = ""; sGrupo.innerHTML = ""; sMes.innerHTML = ""; sOrig.innerHTML = ""; sVend.innerHTML = "";
 
+            console.log("   ✅ Segmentadores inicializados");
             // 🌟 INYECCIÓN DE CONTROL MAESTRO SECCIONAL "TODOS" (RESTAURACIÓN DE VERSIÓN ANTERIOR) 🌟
             sCia.options.add(new Option("-- Todas las Compañías --", "TODOS"));
             sGrupo.options.add(new Option("-- Todos los Grupos --", "TODOS"));
             sMes.options.add(new Option("-- Todos los Meses --", "TODOS"));
             sOrig.options.add(new Option("-- Todos los Documentos --", "TODOS"));
             sVend.options.add(new Option("-- Todos los Vendedores --", "TODOS"));
+
+            console.log("   ✅ Segmentadores -- Todos los Vendedores --");
 
             // 4. Inyectamos los catálogos dinámicos correspondientes
             cias.forEach(c => sCia.options.add(new Option(c, c)));
@@ -310,13 +343,20 @@
             sCia.value = cias.includes("MULTIPLES") ? "MULTIPLES" : "TODOS";
             sGrupo.value = grupos.includes("Distribuidores") ? "Distribuidores" : "TODOS";
             if(meses.length > 0) sMes.value = meses[meses.length - 1];
-        }
+        } catch (error) {
+            console.error("   ❌ Error en inicializarSegmentadoresFiltros:", error);
+    }            
+        
 
     // ==============================================================================
     // 🧮 SECCIÓN 4: ALGORITMO MAESTRO DE AGREGACIÓN Y PROCESAMIENTO COMERCIAL
     // ==============================================================================
     // (Aquí reside la lógica que recorre los datos, calcula KPIs y llena las tablas dinámicas)
     function procesarYFiltrarDashboard() {
+
+        console.log(" procesarYFiltrarDashboard() INICIADO");
+        console.log("   - base_datos_global disponible:", base_datos_global?.length, "filas");        
+        try {
         const c_sel = document.getElementById("filtro-cia").value;
         const g_sel = document.getElementById("filtro-grupo").value;
         const m_sel = document.getElementById("filtro-mes").value;
@@ -444,6 +484,11 @@
             listaDatasetsVendedores.push({ label: vendedor, data: dataMontosPorCategoria, backgroundColor: paletaColoresThema[colorIndex % paletaColoresThema.length], borderRadius: 4 }); colorIndex++;
         });
         if (instGrafico3) instGrafico3.destroy(); instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), { type: 'bar', data: { labels: categoriasFijas, datasets: listaDatasetsVendedores }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12 } }, tooltip: { callbacks: { label: function(context) { return context.dataset.label + "; \$" + context.raw.toLocaleString('es-ES'); } } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#E2E8F0', font: { weight: 'bold' } } } } } });
+
+        console.log("   ✅ Dashboard procesado y filtrado");
+    } catch (error) {
+        console.error("   ❌ Error en procesarYFiltrarDashboard:", error);
+    }
     }
     //
 
