@@ -205,7 +205,7 @@
         const datosFinancieros = await response.json();
         console.log("📡 Conexión segura exitosa. Abstrayendo matriz de datos de la nube...");
         
-        console.log(datosFinancieros.data_cruda);
+        //console.log(datosFinancieros.data_cruda);
 
         try {
             // 🚀 EXTRAEMOS EL STRING OCULTO EN LA PROPIEDAD DATA_CRUDA
@@ -233,6 +233,16 @@
                 return obj;
             });
 
+            // Línea 232 (agregar)
+            console.log("📊 base_data_global construido:", base_data_global);
+            console.log("📊 Total de filas:", base_data_global.length);
+            console.log("📊 Primera fila:", base_data_global[0]);
+            //
+            // Línea 235 (agregar)
+            console.log("🔍 Verificando funciones de renderizado:");
+            console.log("  - ejecutarCalculoTituloDinamico:", typeof ejecutarCalculoTituloDinamico);
+            console.log("  - inicializarSegmentadoresFiltros:", typeof inicializarSegmentadoresFiltros);
+            console.log("  - procesarYFiltrarDashboard:", typeof procesarYFiltrarDashboard);
             console.log("✅ Matriz de datos global estructurada con éxito en RAM sin errores de nulos.");
 
             // 📊 Disparadores nativos de MAMUSA para pintar la interfaz
