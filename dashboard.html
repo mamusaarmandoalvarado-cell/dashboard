@@ -304,7 +304,7 @@
             const grupos = [...new Set(base_datos_global.map(d => d.Grupo_Cliente).filter(Boolean))].sort();
             const meses = [...new Set(base_datos_global.map(d => d.Mes).filter(Boolean))].sort();
             const origenes = [...new Set(base_datos_global.map(d => d.origen).filter(Boolean))].sort();
-            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort(
+            const vendedores = [...new Set(base_datos_global.map(d => d.Vendedor).filter(Boolean))].sort()
             console.log("   - Cías:", cias.length, "Grupos:", grupos.length, "Meses:", meses.length);
 
             // 2. Localizamos las cajas del panel izquierdo en el árbol del navegador
