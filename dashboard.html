@@ -221,7 +221,7 @@
             const columnas = jsonLimpio.table.cols.map(c => c.label ? c.label.trim() : "");
             
             // 🛡️ CONSTRUCCIÓN BLINDADA CONTRA CELDAS NULAS/VACÍAS        
-            base_data_global = jsonLimpio.table.rows.map(r => {
+            base_datos_global = jsonLimpio.table.rows.map(r => {
                 let obj = {};
                 if (r && r.c) {
                     r.c.forEach((celda, index) => {
@@ -234,9 +234,9 @@
             });
 
             // Línea 232 (agregar)
-            console.log("📊 base_data_global construido:", base_data_global);
-            console.log("📊 Total de filas:", base_data_global.length);
-            console.log("📊 Primera fila:", base_data_global[0]);
+            console.log("📊 base_datos_global construido:", base_datos_global);
+            console.log("📊 Total de filas:", base_datos_global.length);
+            console.log("📊 Primera fila:", base_datos_global[0]);
             //
             // Línea 235 (agregar)
             console.log("🔍 Verificando funciones de renderizado:");
@@ -347,7 +347,7 @@
             console.error("   ❌ Error en inicializarSegmentadoresFiltros:", error);
         }
     }
-                
+
         
 
     // ==============================================================================
