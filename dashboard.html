@@ -488,6 +488,30 @@
         if (instGrafico3) instGrafico3.destroy(); instGrafico3 = new Chart(document.getElementById('graficoVendedorDinamico').getContext('2d'), { type: 'bar', data: { labels: categoriasFijas, datasets: listaDatasetsVendedores }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12 } }, tooltip: { callbacks: { label: function(context) { return context.dataset.label + "; \$" + context.raw.toLocaleString('es-ES'); } } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { color: '#E2E8F0', font: { weight: 'bold' } } } } } });
 
         console.log("   ✅ Dashboard procesado y filtrado");
+        //
+
+            // Antes de la línea 490 (después de todo el renderizado)
+            console.log("🔍 Verificando renderizado en el DOM:");
+
+            // Verificar KPIs
+            const kpiNetoEjercicio = document.getElementById('kpi-neto-ejercicio');
+            const kpiVolEjercicio = document.getElementById('kpi-volumen-ejercicio');
+            console.log("  - kpi-neto-ejercicio:", kpiNetoEjercicio?.innerText);
+            console.log("  - kpi-volumen-ejercicio:", kpiVolEjercicio?.innerText);
+
+            // Verificar tablas
+            const tablaClientes = document.getElementById('tabla-clientes-body');
+            const tablaLineas = document.getElementById('tabla-lineas-body');
+            console.log("  - tabla-clientes-body filas:", tablaClientes?.children.length);
+            console.log("  - tabla-lineas-body filas:", tablaLineas?.children.length);
+
+            // Verificar gráficos
+            const canvasGrafico1 = document.getElementById('graficoNetoSimples');
+            const canvasGrafico2 = document.getElementById('graficoBarrasParalelas');
+            console.log("  - graficoNetoSimples existe:", !!canvasGrafico1);
+            console.log("  - graficoBarrasParalelas existe:", !!canvasGrafico2);
+            console.log("  - instGrafico1 creado:", !!instGrafico1);
+            console.log("  - instGrafico2 creado:", !!instGrafico2);
     } catch (error) {
         console.error("   ❌ Error en procesarYFiltrarDashboard:", error);
     }
