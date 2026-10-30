@@ -51,8 +51,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; padding: 15px; overflow-x: hidden; }
 
-        /* INTERFAZ DEL DASHBOARD (OCULTA POR DEFECTO ANTES DE AUTENTICAR) */
-        /*.app-wrapper { display: none; flex-direction: column; gap: 20px; }*/
+        /* INTERFAZ DEL DASHBOARD - Visible por defecto */
+        .app-wrapper { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
 
         header {
             background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid var(--borde-card);
@@ -188,7 +192,8 @@
         console.log("📊 Disparando consulta protegida con credenciales JWT Bearer...");
         
         // Realizamos el fetch inyectando el escudo que armamos en el head
-        const response = await fetch("http://localhost:8085/api/v1/sections/dashboard-consolidados", {
+        //const response = await fetch("http://localhost:8085/api/v1/sections/dashboard-consolidados", {
+        const response = await fetch("https://mamusa-backend-api.onrender.com/api/v1/sections/dashboard-consolidados", {
             method: "GET",
             headers: window.obtenerCabecerasAutorizadasMAMUSA(),  // 👈 🔒 FUSIÓN DE SEGURIDAD
         },
